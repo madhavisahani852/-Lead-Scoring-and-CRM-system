@@ -4,6 +4,10 @@
   "fully_blank_rows_removed": 5,
   "exact_duplicate_rows_removed": 25,
   "near_duplicate_rows_removed": 20,
+  "final_row_count": 1200,
+  "final_col_count": 29,
+  "resolved_rows_for_training": 1017,
+  "unresolved_rows_scoring_only": 183,
   "lead_source_raw_variants_found": [
     "Ads",
     "Email",
@@ -41,16 +45,18 @@
     "form_completions_negative": 0,
     "content_downloads_negative": 0,
     "previous_interactions_negative": 0,
+    "response_time_hours_negative": 0,
     "num_calls_negative": 0,
     "num_meetings_negative": 0
   },
   "impossible_last_activity_before_created": 12,
-  "malformed_emails_flagged": 23,
+  "malformed_emails_flagged": 129,
   "unresolved_leads_excluded_from_target": 183,
   "missing_fraction_by_column": {
     "lead_id": 0.0,
     "name": 0.0092,
     "email": 0.0883,
+    "email_valid": 0.0,
     "phone": 0.0725,
     "company": 0.0,
     "industry": 0.0317,
@@ -60,11 +66,11 @@
     "lead_source": 0.0,
     "campaign": 0.6592,
     "product_interest": 0.0,
-    "budget_range": 0.0842,
+    "budget_range": 0.0,
     "website_visits": 0.0108,
     "page_views": 0.0058,
     "pricing_page_visits": 0.0,
-    "demo_requested": 0.0442,
+    "demo_requested": 0.0,
     "email_opens": 0.0,
     "form_completions": 0.0,
     "content_downloads": 0.0,
@@ -74,31 +80,16 @@
     "num_meetings": 0.0,
     "created_date": 0.0,
     "last_activity_date": 0.0,
-    "status": 0.0,
-    "sales_notes": 0.0375,
-    "converted": 0.1525,
-    "email_norm": 0.0883,
-    "lead_source_clean": 0.0,
-    "demo_requested_clean": 0.0,
-    "budget_range_clean": 0.0,
-    "email_valid": 0.0,
-    "converted_raw": 0.1525,
     "is_resolved": 0.0,
     "target": 0.1525
   },
   "excluded_leakage_columns": [
-    "sales_notes",
     "status",
     "converted",
-    "converted_raw",
-    "email_norm"
+    "sales_notes"
   ],
-  "final_row_count": 1200,
-  "final_col_count": 29,
-  "resolved_rows_for_training": 1017,
-  "unresolved_rows_scoring_only": 183,
   "class_balance_among_resolved": {
-    "1.0": 0.607,
-    "0.0": 0.393
+    "0": 0.3933,
+    "1": 0.6067
   }
 }
