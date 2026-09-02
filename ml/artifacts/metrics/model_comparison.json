@@ -1,0 +1,37 @@
+{
+  "best_model": "Random Forest",
+  "best_roc_auc": 0.7875,
+  "models_compared": 3,
+  "comparison": [
+    {
+      "model": "Random Forest",
+      "test_roc_auc": 0.7875,
+      "test_accuracy": 0.7303921568627451,
+      "test_precision": 0.7716535433070866,
+      "test_recall": 0.7903225806451613,
+      "test_f1": 0.7808764940239044,
+      "test_log_loss": 0.5492515897045865,
+      "brier_score": 0.18514425993464592
+    },
+    {
+      "model": "Logistic Regression Baseline",
+      "test_roc_auc": 0.7721774193548386,
+      "test_accuracy": 0.7254901960784313,
+      "test_precision": 0.765625,
+      "test_recall": 0.7903225806451613,
+      "test_f1": 0.7777777777777778,
+      "test_log_loss": 0.5568784500039609,
+      "brier_score": 0.18776060363119026
+    },
+    {
+      "model": "XGBoost (HistGradientBoosting Fallback)",
+      "test_roc_auc": 0.7628024193548387,
+      "test_accuracy": 0.696078431372549,
+      "test_precision": 0.7313432835820896,
+      "test_recall": 0.7903225806451613,
+      "test_f1": 0.7596899224806202,
+      "test_log_loss": 0.5846596850692032,
+      "brier_score": 0.19740000092864535
+    }
+  ]
+}
