@@ -46,6 +46,7 @@
       "precision_at_k": 0.9,
       "recall_at_k": 0.07258064516129033,
       "conversion_rate": 0.9,
+      "lift_at_k": 1.4806451612903226,
       "conversions_found": 9
     },
     "top_20": {
@@ -53,6 +54,7 @@
       "precision_at_k": 0.95,
       "recall_at_k": 0.1532258064516129,
       "conversion_rate": 0.95,
+      "lift_at_k": 1.5629032258064517,
       "conversions_found": 19
     },
     "top_50": {
@@ -60,6 +62,7 @@
       "precision_at_k": 0.92,
       "recall_at_k": 0.3709677419354839,
       "conversion_rate": 0.92,
+      "lift_at_k": 1.5135483870967743,
       "conversions_found": 46
     }
   },
