@@ -1,0 +1,204 @@
+{
+  "generated_at": "2026-09-02T06:32:54Z",
+  "model_names": [
+    "Logistic Regression Baseline",
+    "Random Forest Baseline"
+  ],
+  "dataset_information": {
+    "dataset_name": "cleaned_leads.csv",
+    "total_records": 1200,
+    "resolved_records": 1017,
+    "unresolved_records": 183,
+    "target_labels": {
+      "0": "Lost",
+      "1": "Converted"
+    }
+  },
+  "split_information": {
+    "random_state": 42,
+    "train_records": 650,
+    "validation_records": 163,
+    "test_records": 204,
+    "stratified": true
+  },
+  "feature_schema_verification": {
+    "shared_schema_used": true,
+    "numeric_columns": 11,
+    "nominal_columns": 4,
+    "ordinal_columns": 1
+  },
+  "compared_metrics": {
+    "validation": {
+      "roc_auc": {
+        "logistic_regression": 0.819760101010101,
+        "random_forest": 0.8194444444444444,
+        "difference_rf_minus_lr": -0.00031565656565657463,
+        "better_model": "Logistic Regression Baseline"
+      },
+      "pr_auc": {
+        "logistic_regression": 0.8682611827700737,
+        "random_forest": 0.8746190834680864,
+        "difference_rf_minus_lr": 0.006357900698012675,
+        "better_model": "Random Forest Baseline"
+      },
+      "accuracy": {
+        "logistic_regression": 0.7607361963190185,
+        "random_forest": 0.7361963190184049,
+        "difference_rf_minus_lr": -0.024539877300613577,
+        "better_model": "Logistic Regression Baseline"
+      },
+      "precision": {
+        "logistic_regression": 0.7678571428571429,
+        "random_forest": 0.7333333333333333,
+        "difference_rf_minus_lr": -0.03452380952380962,
+        "better_model": "Logistic Regression Baseline"
+      },
+      "recall": {
+        "logistic_regression": 0.8686868686868687,
+        "random_forest": 0.8888888888888888,
+        "difference_rf_minus_lr": 0.02020202020202011,
+        "better_model": "Random Forest Baseline"
+      },
+      "f1": {
+        "logistic_regression": 0.8151658767772512,
+        "random_forest": 0.8036529680365296,
+        "difference_rf_minus_lr": -0.011512908740721528,
+        "better_model": "Logistic Regression Baseline"
+      },
+      "log_loss": {
+        "logistic_regression": 0.5141775891944373,
+        "random_forest": 0.5270637135644632,
+        "difference_rf_minus_lr": 0.012886124370025898,
+        "better_model": "Logistic Regression Baseline"
+      }
+    },
+    "test": {
+      "roc_auc": {
+        "logistic_regression": 0.7721774193548386,
+        "random_forest": 0.7875,
+        "difference_rf_minus_lr": 0.015322580645161343,
+        "better_model": "Random Forest Baseline"
+      },
+      "pr_auc": {
+        "logistic_regression": 0.8313285222566891,
+        "random_forest": 0.8502881467698269,
+        "difference_rf_minus_lr": 0.01895962451313782,
+        "better_model": "Random Forest Baseline"
+      },
+      "accuracy": {
+        "logistic_regression": 0.7254901960784313,
+        "random_forest": 0.7303921568627451,
+        "difference_rf_minus_lr": 0.004901960784313708,
+        "better_model": "Random Forest Baseline"
+      },
+      "precision": {
+        "logistic_regression": 0.765625,
+        "random_forest": 0.7716535433070866,
+        "difference_rf_minus_lr": 0.006028543307086576,
+        "better_model": "Random Forest Baseline"
+      },
+      "recall": {
+        "logistic_regression": 0.7903225806451613,
+        "random_forest": 0.7903225806451613,
+        "difference_rf_minus_lr": 0.0,
+        "better_model": "Tie"
+      },
+      "f1": {
+        "logistic_regression": 0.7777777777777778,
+        "random_forest": 0.7808764940239044,
+        "difference_rf_minus_lr": 0.003098716246126565,
+        "better_model": "Random Forest Baseline"
+      },
+      "log_loss": {
+        "logistic_regression": 0.5568784500039591,
+        "random_forest": 0.5492515897045865,
+        "difference_rf_minus_lr": -0.00762686029937254,
+        "better_model": "Random Forest Baseline"
+      }
+    },
+    "ranking": {
+      "top_10": {
+        "precision_at_k": {
+          "logistic_regression": 0.9,
+          "random_forest": 1.0,
+          "difference_rf_minus_lr": 0.09999999999999998,
+          "better_model": "Random Forest Baseline"
+        },
+        "recall_at_k": {
+          "logistic_regression": 0.07258064516129033,
+          "random_forest": 0.08064516129032258,
+          "difference_rf_minus_lr": 0.008064516129032251,
+          "better_model": "Random Forest Baseline"
+        },
+        "conversion_rate": {
+          "logistic_regression": 0.9,
+          "random_forest": 1.0,
+          "difference_rf_minus_lr": 0.09999999999999998,
+          "better_model": "Random Forest Baseline"
+        },
+        "lift_at_k": {
+          "logistic_regression": 1.4806451612903226,
+          "random_forest": 1.6451612903225807,
+          "difference_rf_minus_lr": 0.1645161290322581,
+          "better_model": "Random Forest Baseline"
+        }
+      },
+      "top_20": {
+        "precision_at_k": {
+          "logistic_regression": 0.9,
+          "random_forest": 0.95,
+          "difference_rf_minus_lr": 0.04999999999999993,
+          "better_model": "Random Forest Baseline"
+        },
+        "recall_at_k": {
+          "logistic_regression": 0.14516129032258066,
+          "random_forest": 0.1532258064516129,
+          "difference_rf_minus_lr": 0.008064516129032251,
+          "better_model": "Random Forest Baseline"
+        },
+        "conversion_rate": {
+          "logistic_regression": 0.9,
+          "random_forest": 0.95,
+          "difference_rf_minus_lr": 0.04999999999999993,
+          "better_model": "Random Forest Baseline"
+        },
+        "lift_at_k": {
+          "logistic_regression": 1.4806451612903226,
+          "random_forest": 1.5629032258064517,
+          "difference_rf_minus_lr": 0.08225806451612905,
+          "better_model": "Random Forest Baseline"
+        }
+      },
+      "top_41": {
+        "precision_at_k": {
+          "logistic_regression": 0.9024390243902439,
+          "random_forest": 0.9512195121951219,
+          "difference_rf_minus_lr": 0.04878048780487798,
+          "better_model": "Random Forest Baseline"
+        },
+        "recall_at_k": {
+          "logistic_regression": 0.29838709677419356,
+          "random_forest": 0.31451612903225806,
+          "difference_rf_minus_lr": 0.016129032258064502,
+          "better_model": "Random Forest Baseline"
+        },
+        "conversion_rate": {
+          "logistic_regression": 0.9024390243902439,
+          "random_forest": 0.9512195121951219,
+          "difference_rf_minus_lr": 0.04878048780487798,
+          "better_model": "Random Forest Baseline"
+        },
+        "lift_at_k": {
+          "logistic_regression": 1.4846577498033047,
+          "random_forest": 1.5649095200629426,
+          "difference_rf_minus_lr": 0.08025177025963792,
+          "better_model": "Random Forest Baseline"
+        }
+      }
+    }
+  },
+  "better_model_summary": {
+    "test_classification_winner": "Random Forest Baseline",
+    "test_ranking_winner": "Random Forest Baseline"
+  }
+}
