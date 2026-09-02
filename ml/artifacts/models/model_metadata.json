@@ -56,5 +56,5 @@
   },
   "source_model_artifact": "C:\\Developement\\-Lead-Scoring-and-CRM-system\\ml\\artifacts\\models\\xgboost_tuned.joblib",
   "source_metrics_artifact": "C:\\Developement\\-Lead-Scoring-and-CRM-system\\ml\\artifacts\\metrics\\xgboost_tuning_metrics.json",
-  "selection_date": "2026-09-02T08:35:39Z"
+  "selection_date": "2026-09-02T09:34:21Z"
 }
