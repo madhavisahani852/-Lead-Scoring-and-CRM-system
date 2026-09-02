@@ -1,0 +1,125 @@
+{
+  "model_name": "XGBoost Tuned",
+  "model_type": "XGBClassifier",
+  "random_state": 42,
+  "dataset_path": "C:\\Developement\\-Lead-Scoring-and-CRM-system\\cleaned_leads.csv",
+  "total_resolved_records": 1017,
+  "dataset_summary": {
+    "total_records": 1200,
+    "resolved_records": 1017,
+    "unresolved_records": 183,
+    "training_records": 650,
+    "validation_records": 163,
+    "test_records": 204
+  },
+  "transformed_feature_count": 36,
+  "tuning_method": "RandomizedSearchCV",
+  "cv_folds": 3,
+  "n_iter": 20,
+  "scoring_metric": "roc_auc",
+  "best_cv_score": 0.7740698407514753,
+  "best_hyperparameters": {
+    "subsample": 0.7,
+    "reg_lambda": 1.5,
+    "reg_alpha": 0.01,
+    "n_estimators": 100,
+    "min_child_weight": 1,
+    "max_depth": 2,
+    "learning_rate": 0.1,
+    "gamma": 0,
+    "colsample_bytree": 0.8
+  },
+  "validation": {
+    "roc_auc": 0.823074494949495,
+    "accuracy": 0.7730061349693251,
+    "precision": 0.7672413793103449,
+    "recall": 0.898989898989899,
+    "f1": 0.827906976744186,
+    "log_loss": 0.5060475999370343,
+    "pr_auc": 0.8623173229830993,
+    "confusion_matrix": [
+      [
+        37,
+        27
+      ],
+      [
+        10,
+        89
+      ]
+    ]
+  },
+  "test": {
+    "roc_auc": 0.8086189516129032,
+    "accuracy": 0.7401960784313726,
+    "precision": 0.7709923664122137,
+    "recall": 0.8145161290322581,
+    "f1": 0.792156862745098,
+    "log_loss": 0.5192806093739976,
+    "pr_auc": 0.8653958145804127,
+    "confusion_matrix": [
+      [
+        50,
+        30
+      ],
+      [
+        23,
+        101
+      ]
+    ]
+  },
+  "ranking": {
+    "top_10": {
+      "k": 10,
+      "precision_at_k": 1.0,
+      "recall_at_k": 0.08064516129032258,
+      "conversion_rate": 1.0,
+      "lift_at_k": 1.6451612903225807,
+      "conversions_found": 10
+    },
+    "top_20": {
+      "k": 20,
+      "precision_at_k": 0.95,
+      "recall_at_k": 0.1532258064516129,
+      "conversion_rate": 0.95,
+      "lift_at_k": 1.5629032258064517,
+      "conversions_found": 19
+    },
+    "top_41": {
+      "k": 41,
+      "precision_at_k": 0.926829268292683,
+      "recall_at_k": 0.3064516129032258,
+      "conversion_rate": 0.926829268292683,
+      "lift_at_k": 1.5247836349331236,
+      "conversions_found": 38
+    }
+  },
+  "calibration": {
+    "brier_score": 0.1734608969191215,
+    "calibration_curve": {
+      "prob_true": [
+        0.0,
+        0.21428571428571427,
+        0.125,
+        0.375,
+        0.5625,
+        0.6129032258064516,
+        0.7142857142857143,
+        0.7878787878787878,
+        0.8947368421052632,
+        0.95
+      ],
+      "prob_pred": [
+        0.07483675330877304,
+        0.16240119561553001,
+        0.24840022064745426,
+        0.35400798668464023,
+        0.4560944866389036,
+        0.5497683786576794,
+        0.6570835901158196,
+        0.756126040762121,
+        0.8534889158449674,
+        0.9374562591314316
+      ]
+    }
+  }
+}

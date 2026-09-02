@@ -6,6 +6,7 @@ from ml.config import CLEANED_DATA_PATH, ARTIFACTS_DIR, MODELS_DIR, METRICS_DIR
 from ml.training.train_baseline import train_baseline_model
 from ml.training.train_random_forest import train_random_forest_model
 from ml.training.train_xgboost import train_xgboost_model
+from ml.training.tune_xgboost import tune_xgboost_model
 
 
 @pytest.fixture
@@ -57,4 +58,20 @@ def test_train_xgboost_execution(clean_data_file):
 
     # Verify model reload
     model = joblib.load(MODELS_DIR / "xgboost_baseline.joblib")
+    assert hasattr(model, "predict_proba")
+
+
+def test_tune_xgboost_execution(clean_data_file):
+    metrics = tune_xgboost_model(data_path=clean_data_file)
+    assert "test" in metrics
+    assert "best_cv_score" in metrics
+    assert "best_hyperparameters" in metrics
+
+    # Verify tuned artifact creation
+    assert (MODELS_DIR / "xgboost_tuned.joblib").exists()
+    assert (METRICS_DIR / "xgboost_tuning_metrics.json").exists()
+    assert (ARTIFACTS_DIR / "reports" / "xgboost_tuning.md").exists()
+
+    # Verify model reload
+    model = joblib.load(MODELS_DIR / "xgboost_tuned.joblib")
     assert hasattr(model, "predict_proba")
