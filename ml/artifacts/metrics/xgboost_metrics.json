@@ -1,38 +1,73 @@
 {
-  "model": "XGBoost (HistGradientBoosting Fallback)",
-  "random_state": 42,
-  "classification_threshold": 0.5,
+  "model_name": "XGBoost Baseline",
+  "model_type": "XGBClassifier",
+  "random_seed": 42,
+  "dataset_path": "C:\\Developement\\-Lead-Scoring-and-CRM-system\\cleaned_leads.csv",
+  "total_resolved_records": 1017,
+  "dataset_summary": {
+    "total_records": 1200,
+    "resolved_records": 1017,
+    "unresolved_records": 183,
+    "training_records": 650,
+    "validation_records": 163,
+    "test_records": 204
+  },
+  "class_distribution": {
+    "train_0": 256,
+    "train_1": 394,
+    "val_0": 64,
+    "val_1": 99,
+    "test_0": 80,
+    "test_1": 124
+  },
+  "transformed_feature_count": 36,
+  "features_summary": {
+    "numeric_columns": 11,
+    "nominal_columns": 4,
+    "ordinal_columns": 1
+  },
+  "model_configuration": {
+    "n_estimators": 300,
+    "max_depth": 4,
+    "learning_rate": 0.05,
+    "subsample": 0.8,
+    "colsample_bytree": 0.8,
+    "objective": "binary:logistic",
+    "eval_metric": "logloss",
+    "random_state": 42,
+    "n_jobs": -1
+  },
   "validation": {
-    "roc_auc": 0.795770202020202,
-    "accuracy": 0.7484662576687117,
-    "precision": 0.7416666666666667,
-    "recall": 0.898989898989899,
-    "f1": 0.8127853881278538,
-    "log_loss": 0.5702524218832431,
-    "pr_auc": 0.8325626319128484,
+    "roc_auc": 0.818655303030303,
+    "accuracy": 0.7361963190184049,
+    "precision": 0.7456140350877193,
+    "recall": 0.8585858585858586,
+    "f1": 0.7981220657276995,
+    "log_loss": 0.5222006440162659,
+    "pr_auc": 0.8708419051649436,
     "confusion_matrix": [
       [
-        33,
-        31
+        35,
+        29
       ],
       [
-        10,
-        89
+        14,
+        85
       ]
     ]
   },
   "test": {
-    "roc_auc": 0.7628024193548387,
-    "accuracy": 0.696078431372549,
-    "precision": 0.7313432835820896,
+    "roc_auc": 0.7840725806451613,
+    "accuracy": 0.7156862745098039,
+    "precision": 0.7538461538461538,
     "recall": 0.7903225806451613,
-    "f1": 0.7596899224806202,
-    "log_loss": 0.5846596850692032,
-    "pr_auc": 0.8196223320615698,
+    "f1": 0.7716535433070866,
+    "log_loss": 0.5540719628334045,
+    "pr_auc": 0.8409351377111413,
     "confusion_matrix": [
       [
-        44,
-        36
+        48,
+        32
       ],
       [
         26,
@@ -57,41 +92,41 @@
       "lift_at_k": 1.5629032258064517,
       "conversions_found": 19
     },
-    "top_50": {
-      "k": 50,
-      "precision_at_k": 0.92,
-      "recall_at_k": 0.3709677419354839,
-      "conversion_rate": 0.92,
-      "lift_at_k": 1.5135483870967743,
-      "conversions_found": 46
+    "top_41": {
+      "k": 41,
+      "precision_at_k": 0.9512195121951219,
+      "recall_at_k": 0.31451612903225806,
+      "conversion_rate": 0.9512195121951219,
+      "lift_at_k": 1.5649095200629426,
+      "conversions_found": 39
     }
   },
   "calibration": {
-    "brier_score": 0.19740000092864535,
+    "brier_score": 0.18580392003059387,
     "calibration_curve": {
       "prob_true": [
-        0.2857142857142857,
-        0.1875,
-        0.3888888888888889,
-        0.4,
+        0.23076923076923078,
+        0.2727272727272727,
+        0.2,
+        0.38461538461538464,
+        0.6470588235294118,
+        0.5333333333333333,
         0.6666666666666666,
-        0.5,
-        0.7083333333333334,
-        0.6,
-        0.7692307692307693,
-        0.9230769230769231
+        0.6666666666666666,
+        0.7307692307692307,
+        0.9512195121951219
       ],
       "prob_pred": [
-        0.0689834208439451,
-        0.15278459586900311,
-        0.2631781726409458,
-        0.34442655883801704,
-        0.4588371025836328,
-        0.5398688060066621,
-        0.6432805627893272,
-        0.7539531544473705,
-        0.8549839585650083,
-        0.9543705979403345
+        0.06520442549998944,
+        0.1422078636559573,
+        0.24401480033993722,
+        0.3387624117044302,
+        0.4452136772520402,
+        0.5632165511449178,
+        0.6466921733485328,
+        0.7481541673342387,
+        0.8487763611169962,
+        0.9538841262096311
       ]
     }
   }

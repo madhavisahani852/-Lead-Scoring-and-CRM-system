@@ -48,7 +48,13 @@ def test_train_xgboost_execution(clean_data_file):
     metrics = train_xgboost_model(data_path=clean_data_file)
     assert "test" in metrics
     assert "roc_auc" in metrics["test"]
-    assert (MODELS_DIR / "xgboost.joblib").exists()
+    assert "ranking" in metrics
+    assert "top_10" in metrics["ranking"]
 
-    model = joblib.load(MODELS_DIR / "xgboost.joblib")
+    # Verify canonical artifact creation
+    assert (MODELS_DIR / "xgboost_baseline.joblib").exists()
+    assert (METRICS_DIR / "xgboost_metrics.json").exists()
+
+    # Verify model reload
+    model = joblib.load(MODELS_DIR / "xgboost_baseline.joblib")
     assert hasattr(model, "predict_proba")
