@@ -1,7 +1,8 @@
 import pytest
 import joblib
+import json
 import pandas as pd
-from ml.config import CLEANED_DATA_PATH, MODELS_DIR, METRICS_DIR
+from ml.config import CLEANED_DATA_PATH, ARTIFACTS_DIR, MODELS_DIR, METRICS_DIR
 from ml.training.train_baseline import train_baseline_model
 from ml.training.train_random_forest import train_random_forest_model
 from ml.training.train_xgboost import train_xgboost_model
@@ -18,6 +19,7 @@ def test_train_baseline_execution(clean_data_file):
     metrics = train_baseline_model(data_path=clean_data_file)
     assert "test" in metrics
     assert "roc_auc" in metrics["test"]
+    assert (ARTIFACTS_DIR / "logistic_regression_baseline.joblib").exists()
     assert (MODELS_DIR / "logistic_regression_baseline.joblib").exists()
 
     # Verify model reload
@@ -29,9 +31,16 @@ def test_train_random_forest_execution(clean_data_file):
     metrics = train_random_forest_model(data_path=clean_data_file)
     assert "test" in metrics
     assert "roc_auc" in metrics["test"]
-    assert (MODELS_DIR / "random_forest.joblib").exists()
+    assert "ranking" in metrics
+    assert "top_10" in metrics["ranking"]
+    assert "lift_at_k" in metrics["ranking"]["top_10"]
 
-    model = joblib.load(MODELS_DIR / "random_forest.joblib")
+    # Verify canonical artifact creation
+    assert (MODELS_DIR / "random_forest_baseline.joblib").exists()
+    assert (METRICS_DIR / "random_forest_metrics.json").exists()
+
+    # Verify model reload from canonical path
+    model = joblib.load(MODELS_DIR / "random_forest_baseline.joblib")
     assert hasattr(model, "predict_proba")
 
 

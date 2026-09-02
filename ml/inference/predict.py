@@ -23,9 +23,10 @@ from ml.config.feature_config import (
 def get_default_model_path() -> Path:
     """
     Finds and returns the best available trained model path.
-    Prefers random_forest.joblib or xgboost.joblib, falls back to logistic_regression_baseline.joblib.
+    Prefers random_forest_baseline.joblib or xgboost.joblib, falls back to logistic_regression_baseline.joblib.
     """
     candidates = [
+        MODELS_DIR / "random_forest_baseline.joblib",
         MODELS_DIR / "random_forest.joblib",
         MODELS_DIR / "xgboost.joblib",
         MODELS_DIR / "logistic_regression_baseline.joblib",
