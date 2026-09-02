@@ -8,6 +8,7 @@ if str(PROJECT_ROOT) not in sys.path:
 
 import json
 import joblib
+import numpy as np
 import pandas as pd
 from sklearn.linear_model import LogisticRegression
 from sklearn.model_selection import train_test_split
@@ -15,7 +16,6 @@ from sklearn.pipeline import Pipeline
 
 from ml.config.feature_config import (
     CLEANED_DATA_PATH,
-    ARTIFACTS_DIR,
     MODELS_DIR,
     METRICS_DIR,
     NUMERIC_COLS,
@@ -40,6 +40,11 @@ CLASSIFICATION_THRESHOLD = 0.50
 
 
 def train_baseline_model(data_path=None):
+    """
+    Trains and evaluates the Baseline Logistic Regression model.
+    Uses the shared feature schema and preprocessing pipeline.
+    Saves fitted pipeline and evaluation metrics.
+    """
     if data_path is None:
         data_path = CLEANED_DATA_PATH
 
@@ -66,13 +71,17 @@ def train_baseline_model(data_path=None):
     print(f"Validation set size: {len(X_val)}")
     print(f"Test set size:       {len(X_test)}")
 
-    # Use team's shared preprocessing pipeline from preprocessing.py
-    preprocessor = build_preprocessing_pipeline()
-    classifier = LogisticRegression(max_iter=1000, random_state=RANDOM_STATE)
+    # Model configuration
+    model = LogisticRegression(
+        random_state=RANDOM_STATE,
+        max_iter=1000,
+        solver="lbfgs"
+    )
 
+    # Build pipeline: preprocessor + model
     pipeline = Pipeline(steps=[
-        ("preprocessor", preprocessor),
-        ("classifier", classifier),
+        ("preprocessor", build_preprocessing_pipeline()),
+        ("classifier", model),
     ])
 
     print("\nTraining Logistic Regression baseline...")
@@ -91,7 +100,7 @@ def train_baseline_model(data_path=None):
     test_metrics = evaluate_classification(y_test, test_probs, test_preds)
     print_classification_metrics("LOGISTIC REGRESSION TEST RESULTS", test_metrics)
 
-    # Ranking metrics for K=10, 20, and ~20% of test set
+    # Ranking metrics for K=10, 20, and ~20% of test set (K=41)
     k_20_pct = int(round(0.20 * len(y_test)))
     ranking_k_values = [10, 20, k_20_pct]
     ranking_metrics = evaluate_ranking(y_test, test_probs, k_values=ranking_k_values)
@@ -109,9 +118,11 @@ def train_baseline_model(data_path=None):
         print(f"  Conversions:    {result['conversions_found']}")
 
     all_metrics = {
-        "model": "Logistic Regression Baseline",
-        "random_state": RANDOM_STATE,
-        "classification_threshold": CLASSIFICATION_THRESHOLD,
+        "model_name": "Logistic Regression Baseline",
+        "model_type": "LogisticRegression",
+        "random_seed": RANDOM_STATE,
+        "dataset_path": str(data_path),
+        "total_resolved_records": len(y),
         "dataset_summary": {
             "total_records": len(df),
             "resolved_records": len(y),
@@ -119,6 +130,14 @@ def train_baseline_model(data_path=None):
             "training_records": len(X_train),
             "validation_records": len(X_val),
             "test_records": len(X_test),
+        },
+        "class_distribution": {
+            "train_0": int((y_train == 0).sum()),
+            "train_1": int((y_train == 1).sum()),
+            "val_0": int((y_val == 0).sum()),
+            "val_1": int((y_val == 1).sum()),
+            "test_0": int((y_test == 0).sum()),
+            "test_1": int((y_test == 1).sum()),
         },
         "features_summary": {
             "numeric_columns": len(NUMERIC_COLS),
@@ -131,29 +150,20 @@ def train_baseline_model(data_path=None):
         "calibration": calibration_metrics,
     }
 
-    # Ensure output directories exist
-    ARTIFACTS_DIR.mkdir(parents=True, exist_ok=True)
+    # Ensure canonical output directories exist
     MODELS_DIR.mkdir(parents=True, exist_ok=True)
     METRICS_DIR.mkdir(parents=True, exist_ok=True)
 
-    # Save fitted pipeline to both ml/artifacts/ and ml/artifacts/models/
-    model_paths = [
-        ARTIFACTS_DIR / "logistic_regression_baseline.joblib",
-        MODELS_DIR / "logistic_regression_baseline.joblib",
-    ]
-    for m_path in model_paths:
-        joblib.dump(pipeline, m_path)
-        print(f"Saved model pipeline to: {m_path}")
+    # Save fitted pipeline strictly to canonical MODELS_DIR
+    model_path = MODELS_DIR / "logistic_regression_baseline.joblib"
+    joblib.dump(pipeline, model_path)
+    print(f"Saved model pipeline to: {model_path}")
 
-    # Save complete metrics to both ml/artifacts/ and ml/artifacts/metrics/
-    metrics_paths = [
-        ARTIFACTS_DIR / "baseline_metrics.json",
-        METRICS_DIR / "baseline_metrics.json",
-    ]
-    for metrics_path in metrics_paths:
-        with open(metrics_path, "w", encoding="utf-8") as f:
-            json.dump(all_metrics, f, indent=2)
-        print(f"Saved metrics to: {metrics_path}")
+    # Save complete metrics strictly to canonical METRICS_DIR
+    metrics_path = METRICS_DIR / "baseline_metrics.json"
+    with open(metrics_path, "w", encoding="utf-8") as f:
+        json.dump(all_metrics, f, indent=2)
+    print(f"Saved metrics to: {metrics_path}")
 
     print("\n" + "=" * 60)
     print("BASELINE TRAINING & EVALUATION COMPLETE")

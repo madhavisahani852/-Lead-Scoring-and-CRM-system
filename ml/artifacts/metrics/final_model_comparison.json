@@ -1,0 +1,520 @@
+{
+  "generated_at": "2026-09-02T08:35:39Z",
+  "fairness_check": {
+    "is_directly_comparable": true,
+    "dataset_name": "cleaned_leads.csv",
+    "total_records": 1200,
+    "resolved_records": 1017,
+    "train_records": 650,
+    "validation_records": 163,
+    "test_records": 204,
+    "random_state": 42,
+    "transformed_features": 36
+  },
+  "models": {
+    "logistic_regression": {
+      "model_name": "Logistic Regression Baseline",
+      "model_type": "LogisticRegression",
+      "random_seed": 42,
+      "dataset_path": "C:\\Developement\\-Lead-Scoring-and-CRM-system\\cleaned_leads.csv",
+      "total_resolved_records": 1017,
+      "dataset_summary": {
+        "total_records": 1200,
+        "resolved_records": 1017,
+        "unresolved_records": 183,
+        "training_records": 650,
+        "validation_records": 163,
+        "test_records": 204
+      },
+      "class_distribution": {
+        "train_0": 256,
+        "train_1": 394,
+        "val_0": 64,
+        "val_1": 99,
+        "test_0": 80,
+        "test_1": 124
+      },
+      "features_summary": {
+        "numeric_columns": 11,
+        "nominal_columns": 4,
+        "ordinal_columns": 1
+      },
+      "validation": {
+        "roc_auc": 0.819760101010101,
+        "accuracy": 0.7607361963190185,
+        "precision": 0.7678571428571429,
+        "recall": 0.8686868686868687,
+        "f1": 0.8151658767772512,
+        "log_loss": 0.5141775891944286,
+        "pr_auc": 0.8682611827700737,
+        "confusion_matrix": [
+          [
+            38,
+            26
+          ],
+          [
+            13,
+            86
+          ]
+        ]
+      },
+      "test": {
+        "roc_auc": 0.7721774193548386,
+        "accuracy": 0.7254901960784313,
+        "precision": 0.765625,
+        "recall": 0.7903225806451613,
+        "f1": 0.7777777777777778,
+        "log_loss": 0.5568784500039609,
+        "pr_auc": 0.8313285222566891,
+        "confusion_matrix": [
+          [
+            50,
+            30
+          ],
+          [
+            26,
+            98
+          ]
+        ]
+      },
+      "ranking": {
+        "top_10": {
+          "k": 10,
+          "precision_at_k": 0.9,
+          "recall_at_k": 0.07258064516129033,
+          "conversion_rate": 0.9,
+          "lift_at_k": 1.4806451612903226,
+          "conversions_found": 9
+        },
+        "top_20": {
+          "k": 20,
+          "precision_at_k": 0.9,
+          "recall_at_k": 0.14516129032258066,
+          "conversion_rate": 0.9,
+          "lift_at_k": 1.4806451612903226,
+          "conversions_found": 18
+        },
+        "top_41": {
+          "k": 41,
+          "precision_at_k": 0.9024390243902439,
+          "recall_at_k": 0.29838709677419356,
+          "conversion_rate": 0.9024390243902439,
+          "lift_at_k": 1.4846577498033047,
+          "conversions_found": 37
+        }
+      },
+      "calibration": {
+        "brier_score": 0.18776060363119026,
+        "calibration_curve": {
+          "prob_true": [
+            0.0,
+            0.26666666666666666,
+            0.23076923076923078,
+            0.375,
+            0.45454545454545453,
+            0.5925925925925926,
+            0.7096774193548387,
+            0.8181818181818182,
+            0.8181818181818182,
+            0.9230769230769231
+          ],
+          "prob_pred": [
+            0.09035916928685987,
+            0.1731206365821481,
+            0.25553824382984663,
+            0.34926554521988656,
+            0.45390620155001044,
+            0.551586523755191,
+            0.6567328819236237,
+            0.7475317688327544,
+            0.8387842605367091,
+            0.9424375890646982
+          ]
+        }
+      }
+    },
+    "random_forest": {
+      "model": "Random Forest Baseline",
+      "random_state": 42,
+      "classification_threshold": 0.5,
+      "hyperparameters": {
+        "n_estimators": 100,
+        "max_depth": 10,
+        "random_state": 42,
+        "n_jobs": -1
+      },
+      "dataset_summary": {
+        "total_records": 1200,
+        "resolved_records": 1017,
+        "unresolved_records": 183,
+        "training_records": 650,
+        "validation_records": 163,
+        "test_records": 204
+      },
+      "features_summary": {
+        "numeric_columns": 11,
+        "nominal_columns": 4,
+        "ordinal_columns": 1
+      },
+      "validation": {
+        "roc_auc": 0.8194444444444444,
+        "accuracy": 0.7361963190184049,
+        "precision": 0.7333333333333333,
+        "recall": 0.8888888888888888,
+        "f1": 0.8036529680365296,
+        "log_loss": 0.5270637135644632,
+        "pr_auc": 0.8746190834680864,
+        "confusion_matrix": [
+          [
+            32,
+            32
+          ],
+          [
+            11,
+            88
+          ]
+        ]
+      },
+      "test": {
+        "roc_auc": 0.7875,
+        "accuracy": 0.7303921568627451,
+        "precision": 0.7716535433070866,
+        "recall": 0.7903225806451613,
+        "f1": 0.7808764940239044,
+        "log_loss": 0.5492515897045865,
+        "pr_auc": 0.8502881467698269,
+        "confusion_matrix": [
+          [
+            51,
+            29
+          ],
+          [
+            26,
+            98
+          ]
+        ]
+      },
+      "ranking": {
+        "top_10": {
+          "k": 10,
+          "precision_at_k": 1.0,
+          "recall_at_k": 0.08064516129032258,
+          "conversion_rate": 1.0,
+          "lift_at_k": 1.6451612903225807,
+          "conversions_found": 10
+        },
+        "top_20": {
+          "k": 20,
+          "precision_at_k": 0.95,
+          "recall_at_k": 0.1532258064516129,
+          "conversion_rate": 0.95,
+          "lift_at_k": 1.5629032258064517,
+          "conversions_found": 19
+        },
+        "top_41": {
+          "k": 41,
+          "precision_at_k": 0.9512195121951219,
+          "recall_at_k": 0.31451612903225806,
+          "conversion_rate": 0.9512195121951219,
+          "lift_at_k": 1.5649095200629426,
+          "conversions_found": 39
+        }
+      },
+      "calibration": {
+        "brier_score": 0.18514425993464592,
+        "calibration_curve": {
+          "prob_true": [
+            0.0,
+            0.2222222222222222,
+            0.25,
+            0.45,
+            0.6363636363636364,
+            0.6666666666666666,
+            0.8787878787878788,
+            0.9130434782608695,
+            1.0
+          ],
+          "prob_pred": [
+            0.16068862780688442,
+            0.2565184851545891,
+            0.34962320725595664,
+            0.44725552322710793,
+            0.554763487324347,
+            0.6505329515817517,
+            0.7504811066321674,
+            0.8513920112987622,
+            0.9242905032560917
+          ]
+        }
+      }
+    },
+    "xgboost_baseline": {
+      "model_name": "XGBoost Baseline",
+      "model_type": "XGBClassifier",
+      "random_seed": 42,
+      "dataset_path": "C:\\Developement\\-Lead-Scoring-and-CRM-system\\cleaned_leads.csv",
+      "total_resolved_records": 1017,
+      "dataset_summary": {
+        "total_records": 1200,
+        "resolved_records": 1017,
+        "unresolved_records": 183,
+        "training_records": 650,
+        "validation_records": 163,
+        "test_records": 204
+      },
+      "class_distribution": {
+        "train_0": 256,
+        "train_1": 394,
+        "val_0": 64,
+        "val_1": 99,
+        "test_0": 80,
+        "test_1": 124
+      },
+      "transformed_feature_count": 36,
+      "features_summary": {
+        "numeric_columns": 11,
+        "nominal_columns": 4,
+        "ordinal_columns": 1
+      },
+      "model_configuration": {
+        "n_estimators": 300,
+        "max_depth": 4,
+        "learning_rate": 0.05,
+        "subsample": 0.8,
+        "colsample_bytree": 0.8,
+        "objective": "binary:logistic",
+        "eval_metric": "logloss",
+        "random_state": 42,
+        "n_jobs": -1
+      },
+      "validation": {
+        "roc_auc": 0.818655303030303,
+        "accuracy": 0.7361963190184049,
+        "precision": 0.7456140350877193,
+        "recall": 0.8585858585858586,
+        "f1": 0.7981220657276995,
+        "log_loss": 0.5222006328751888,
+        "pr_auc": 0.8708419051649436,
+        "confusion_matrix": [
+          [
+            35,
+            29
+          ],
+          [
+            14,
+            85
+          ]
+        ]
+      },
+      "test": {
+        "roc_auc": 0.7840725806451613,
+        "accuracy": 0.7156862745098039,
+        "precision": 0.7538461538461538,
+        "recall": 0.7903225806451613,
+        "f1": 0.7716535433070866,
+        "log_loss": 0.5540720016670613,
+        "pr_auc": 0.8409351377111413,
+        "confusion_matrix": [
+          [
+            48,
+            32
+          ],
+          [
+            26,
+            98
+          ]
+        ]
+      },
+      "ranking": {
+        "top_10": {
+          "k": 10,
+          "precision_at_k": 0.9,
+          "recall_at_k": 0.07258064516129033,
+          "conversion_rate": 0.9,
+          "lift_at_k": 1.4806451612903226,
+          "conversions_found": 9
+        },
+        "top_20": {
+          "k": 20,
+          "precision_at_k": 0.95,
+          "recall_at_k": 0.1532258064516129,
+          "conversion_rate": 0.95,
+          "lift_at_k": 1.5629032258064517,
+          "conversions_found": 19
+        },
+        "top_41": {
+          "k": 41,
+          "precision_at_k": 0.9512195121951219,
+          "recall_at_k": 0.31451612903225806,
+          "conversion_rate": 0.9512195121951219,
+          "lift_at_k": 1.5649095200629426,
+          "conversions_found": 39
+        }
+      },
+      "calibration": {
+        "brier_score": 0.1858039288543107,
+        "calibration_curve": {
+          "prob_true": [
+            0.23076923076923078,
+            0.2727272727272727,
+            0.2,
+            0.38461538461538464,
+            0.6470588235294118,
+            0.5333333333333333,
+            0.6666666666666666,
+            0.6666666666666666,
+            0.7307692307692307,
+            0.9512195121951219
+          ],
+          "prob_pred": [
+            0.06520442549998944,
+            0.1422078636559573,
+            0.24401480033993722,
+            0.3387624117044302,
+            0.4452136772520402,
+            0.5632165511449178,
+            0.6466921733485328,
+            0.7481541673342387,
+            0.8487763611169962,
+            0.9538841262096311
+          ]
+        }
+      }
+    },
+    "xgboost_tuned": {
+      "model_name": "XGBoost Tuned",
+      "model_type": "XGBClassifier",
+      "random_state": 42,
+      "dataset_path": "C:\\Developement\\-Lead-Scoring-and-CRM-system\\cleaned_leads.csv",
+      "total_resolved_records": 1017,
+      "dataset_summary": {
+        "total_records": 1200,
+        "resolved_records": 1017,
+        "unresolved_records": 183,
+        "training_records": 650,
+        "validation_records": 163,
+        "test_records": 204
+      },
+      "transformed_feature_count": 36,
+      "tuning_method": "RandomizedSearchCV",
+      "cv_folds": 3,
+      "n_iter": 20,
+      "scoring_metric": "roc_auc",
+      "best_cv_score": 0.7740698407514753,
+      "best_hyperparameters": {
+        "subsample": 0.7,
+        "reg_lambda": 1.5,
+        "reg_alpha": 0.01,
+        "n_estimators": 100,
+        "min_child_weight": 1,
+        "max_depth": 2,
+        "learning_rate": 0.1,
+        "gamma": 0,
+        "colsample_bytree": 0.8
+      },
+      "validation": {
+        "roc_auc": 0.823074494949495,
+        "accuracy": 0.7730061349693251,
+        "precision": 0.7672413793103449,
+        "recall": 0.898989898989899,
+        "f1": 0.827906976744186,
+        "log_loss": 0.5060475999370343,
+        "pr_auc": 0.8623173229830993,
+        "confusion_matrix": [
+          [
+            37,
+            27
+          ],
+          [
+            10,
+            89
+          ]
+        ]
+      },
+      "test": {
+        "roc_auc": 0.8086189516129032,
+        "accuracy": 0.7401960784313726,
+        "precision": 0.7709923664122137,
+        "recall": 0.8145161290322581,
+        "f1": 0.792156862745098,
+        "log_loss": 0.5192806093739976,
+        "pr_auc": 0.8653958145804127,
+        "confusion_matrix": [
+          [
+            50,
+            30
+          ],
+          [
+            23,
+            101
+          ]
+        ]
+      },
+      "ranking": {
+        "top_10": {
+          "k": 10,
+          "precision_at_k": 1.0,
+          "recall_at_k": 0.08064516129032258,
+          "conversion_rate": 1.0,
+          "lift_at_k": 1.6451612903225807,
+          "conversions_found": 10
+        },
+        "top_20": {
+          "k": 20,
+          "precision_at_k": 0.95,
+          "recall_at_k": 0.1532258064516129,
+          "conversion_rate": 0.95,
+          "lift_at_k": 1.5629032258064517,
+          "conversions_found": 19
+        },
+        "top_41": {
+          "k": 41,
+          "precision_at_k": 0.926829268292683,
+          "recall_at_k": 0.3064516129032258,
+          "conversion_rate": 0.926829268292683,
+          "lift_at_k": 1.5247836349331236,
+          "conversions_found": 38
+        }
+      },
+      "calibration": {
+        "brier_score": 0.1734608969191215,
+        "calibration_curve": {
+          "prob_true": [
+            0.0,
+            0.21428571428571427,
+            0.125,
+            0.375,
+            0.5625,
+            0.6129032258064516,
+            0.7142857142857143,
+            0.7878787878787878,
+            0.8947368421052632,
+            0.95
+          ],
+          "prob_pred": [
+            0.07483675330877304,
+            0.16240119561553001,
+            0.24840022064745426,
+            0.35400798668464023,
+            0.4560944866389036,
+            0.5497683786576794,
+            0.6570835901158196,
+            0.756126040762121,
+            0.8534889158449674,
+            0.9374562591314316
+          ]
+        }
+      }
+    }
+  },
+  "best_classification_model": "Tuned XGBoost",
+  "best_ranking_model": "Random Forest Baseline",
+  "best_overall_model": "Tuned XGBoost",
+  "selection_reason": "Selected as BEST_OVERALL_MODEL for achieving the highest Test ROC-AUC (0.8086), highest Test PR-AUC (0.8654), highest Test F1 Score (0.7922), lowest Test Log Loss (0.5193), and 100% precision in top 10 lead recommendations (Precision@10 = 1.0000, Lift@10 = 1.6452x).",
+  "canonical_artifacts": {
+    "best_model": "C:\\Developement\\-Lead-Scoring-and-CRM-system\\ml\\artifacts\\models\\best_model.joblib",
+    "model_metadata": "C:\\Developement\\-Lead-Scoring-and-CRM-system\\ml\\artifacts\\models\\model_metadata.json",
+    "comparison_report": "C:\\Developement\\-Lead-Scoring-and-CRM-system\\ml\\artifacts\\reports\\final_model_comparison.md",
+    "model_card": "C:\\Developement\\-Lead-Scoring-and-CRM-system\\ml\\artifacts\\reports\\model_card.md"
+  }
+}

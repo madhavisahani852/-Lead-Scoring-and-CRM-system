@@ -1,7 +1,9 @@
 {
-  "model": "Logistic Regression Baseline",
-  "random_state": 42,
-  "classification_threshold": 0.5,
+  "model_name": "Logistic Regression Baseline",
+  "model_type": "LogisticRegression",
+  "random_seed": 42,
+  "dataset_path": "C:\\Developement\\-Lead-Scoring-and-CRM-system\\cleaned_leads.csv",
+  "total_resolved_records": 1017,
   "dataset_summary": {
     "total_records": 1200,
     "resolved_records": 1017,
@@ -9,6 +11,14 @@
     "training_records": 650,
     "validation_records": 163,
     "test_records": 204
+  },
+  "class_distribution": {
+    "train_0": 256,
+    "train_1": 394,
+    "val_0": 64,
+    "val_1": 99,
+    "test_0": 80,
+    "test_1": 124
   },
   "features_summary": {
     "numeric_columns": 11,
@@ -21,7 +31,7 @@
     "precision": 0.7678571428571429,
     "recall": 0.8686868686868687,
     "f1": 0.8151658767772512,
-    "log_loss": 0.5141775891944373,
+    "log_loss": 0.5141775891944286,
     "pr_auc": 0.8682611827700737,
     "confusion_matrix": [
       [
@@ -40,7 +50,7 @@
     "precision": 0.765625,
     "recall": 0.7903225806451613,
     "f1": 0.7777777777777778,
-    "log_loss": 0.5568784500039591,
+    "log_loss": 0.5568784500039609,
     "pr_auc": 0.8313285222566891,
     "confusion_matrix": [
       [
@@ -80,7 +90,7 @@
     }
   },
   "calibration": {
-    "brier_score": 0.18776060363118938,
+    "brier_score": 0.18776060363119026,
     "calibration_curve": {
       "prob_true": [
         0.0,
@@ -95,16 +105,16 @@
         0.9230769230769231
       ],
       "prob_pred": [
-        0.09035916928686438,
-        0.1731206365821551,
-        0.2555382438298585,
-        0.3492655452198983,
-        0.4539062015500207,
-        0.5515865237551951,
-        0.6567328819236279,
-        0.7475317688327583,
-        0.8387842605367049,
-        0.9424375890646968
+        0.09035916928685987,
+        0.1731206365821481,
+        0.25553824382984663,
+        0.34926554521988656,
+        0.45390620155001044,
+        0.551586523755191,
+        0.6567328819236237,
+        0.7475317688327544,
+        0.8387842605367091,
+        0.9424375890646982
       ]
     }
   }

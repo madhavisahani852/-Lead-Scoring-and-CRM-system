@@ -20,8 +20,8 @@ def test_train_baseline_execution(clean_data_file):
     metrics = train_baseline_model(data_path=clean_data_file)
     assert "test" in metrics
     assert "roc_auc" in metrics["test"]
-    assert (ARTIFACTS_DIR / "logistic_regression_baseline.joblib").exists()
     assert (MODELS_DIR / "logistic_regression_baseline.joblib").exists()
+    assert (METRICS_DIR / "baseline_metrics.json").exists()
 
     # Verify model reload
     model = joblib.load(MODELS_DIR / "logistic_regression_baseline.joblib")

@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-09-02T06:32:54Z",
+  "generated_at": "2026-09-02T08:35:30Z",
   "model_names": [
     "Logistic Regression Baseline",
     "Random Forest Baseline"
@@ -66,9 +66,9 @@
         "better_model": "Logistic Regression Baseline"
       },
       "log_loss": {
-        "logistic_regression": 0.5141775891944373,
+        "logistic_regression": 0.5141775891944286,
         "random_forest": 0.5270637135644632,
-        "difference_rf_minus_lr": 0.012886124370025898,
+        "difference_rf_minus_lr": 0.012886124370034668,
         "better_model": "Logistic Regression Baseline"
       }
     },
@@ -110,9 +110,9 @@
         "better_model": "Random Forest Baseline"
       },
       "log_loss": {
-        "logistic_regression": 0.5568784500039591,
+        "logistic_regression": 0.5568784500039609,
         "random_forest": 0.5492515897045865,
-        "difference_rf_minus_lr": -0.00762686029937254,
+        "difference_rf_minus_lr": -0.007626860299374316,
         "better_model": "Random Forest Baseline"
       }
     },
