@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-09-02T09:34:21Z",
+  "generated_at": "2026-09-06T18:13:14Z",
   "fairness_check": {
     "is_directly_comparable": true,
     "dataset_name": "cleaned_leads.csv",
@@ -16,7 +16,7 @@
       "model_name": "Logistic Regression Baseline",
       "model_type": "LogisticRegression",
       "random_seed": 42,
-      "dataset_path": "C:\\Developement\\-Lead-Scoring-and-CRM-system\\cleaned_leads.csv",
+      "dataset_path": "C:\\Users\\HP\\-Lead-Scoring-and-CRM-system\\cleaned_leads.csv",
       "total_resolved_records": 1017,
       "dataset_summary": {
         "total_records": 1200,
@@ -45,7 +45,7 @@
         "precision": 0.7678571428571429,
         "recall": 0.8686868686868687,
         "f1": 0.8151658767772512,
-        "log_loss": 0.5141775891944286,
+        "log_loss": 0.5141775891944291,
         "pr_auc": 0.8682611827700737,
         "confusion_matrix": [
           [
@@ -64,7 +64,7 @@
         "precision": 0.765625,
         "recall": 0.7903225806451613,
         "f1": 0.7777777777777778,
-        "log_loss": 0.5568784500039609,
+        "log_loss": 0.5568784500039606,
         "pr_auc": 0.8313285222566891,
         "confusion_matrix": [
           [
@@ -104,7 +104,7 @@
         }
       },
       "calibration": {
-        "brier_score": 0.18776060363119026,
+        "brier_score": 0.1877606036311902,
         "calibration_curve": {
           "prob_true": [
             0.0,
@@ -119,14 +119,14 @@
             0.9230769230769231
           ],
           "prob_pred": [
-            0.09035916928685987,
-            0.1731206365821481,
-            0.25553824382984663,
-            0.34926554521988656,
-            0.45390620155001044,
-            0.551586523755191,
-            0.6567328819236237,
-            0.7475317688327544,
+            0.0903591692868599,
+            0.1731206365821486,
+            0.2555382438298476,
+            0.3492655452198874,
+            0.4539062015500112,
+            0.5515865237551915,
+            0.656732881923624,
+            0.7475317688327546,
             0.8387842605367091,
             0.9424375890646982
           ]
@@ -236,13 +236,13 @@
           ],
           "prob_pred": [
             0.16068862780688442,
-            0.2565184851545891,
+            0.256518485154589,
             0.34962320725595664,
-            0.44725552322710793,
+            0.44725552322710815,
             0.554763487324347,
             0.6505329515817517,
             0.7504811066321674,
-            0.8513920112987622,
+            0.851392011298762,
             0.9242905032560917
           ]
         }
@@ -252,7 +252,7 @@
       "model_name": "XGBoost Baseline",
       "model_type": "XGBClassifier",
       "random_seed": 42,
-      "dataset_path": "C:\\Developement\\-Lead-Scoring-and-CRM-system\\cleaned_leads.csv",
+      "dataset_path": "C:\\Users\\HP\\-Lead-Scoring-and-CRM-system\\cleaned_leads.csv",
       "total_resolved_records": 1017,
       "dataset_summary": {
         "total_records": 1200,
@@ -288,40 +288,40 @@
         "n_jobs": -1
       },
       "validation": {
-        "roc_auc": 0.818655303030303,
-        "accuracy": 0.7361963190184049,
-        "precision": 0.7456140350877193,
-        "recall": 0.8585858585858586,
-        "f1": 0.7981220657276995,
-        "log_loss": 0.5222006328751888,
-        "pr_auc": 0.8708419051649436,
+        "roc_auc": 0.8255997474747475,
+        "accuracy": 0.754601226993865,
+        "precision": 0.7521367521367521,
+        "recall": 0.8888888888888888,
+        "f1": 0.8148148148148148,
+        "log_loss": 0.5138914015896509,
+        "pr_auc": 0.8687202082448087,
         "confusion_matrix": [
           [
             35,
             29
           ],
           [
-            14,
-            85
+            11,
+            88
           ]
         ]
       },
       "test": {
-        "roc_auc": 0.7840725806451613,
-        "accuracy": 0.7156862745098039,
-        "precision": 0.7538461538461538,
-        "recall": 0.7903225806451613,
-        "f1": 0.7716535433070866,
-        "log_loss": 0.5540720016670613,
-        "pr_auc": 0.8409351377111413,
+        "roc_auc": 0.7868951612903226,
+        "accuracy": 0.7254901960784313,
+        "precision": 0.7575757575757576,
+        "recall": 0.8064516129032258,
+        "f1": 0.78125,
+        "log_loss": 0.5479017367830508,
+        "pr_auc": 0.8388055587511591,
         "confusion_matrix": [
           [
             48,
             32
           ],
           [
-            26,
-            98
+            24,
+            100
           ]
         ]
       },
@@ -352,31 +352,31 @@
         }
       },
       "calibration": {
-        "brier_score": 0.1858039288543107,
+        "brier_score": 0.18339833178984177,
         "calibration_curve": {
           "prob_true": [
-            0.23076923076923078,
-            0.2727272727272727,
-            0.2,
-            0.38461538461538464,
-            0.6470588235294118,
-            0.5333333333333333,
-            0.6666666666666666,
-            0.6666666666666666,
-            0.7307692307692307,
-            0.9512195121951219
+            0.16666666666666666,
+            0.3333333333333333,
+            0.19047619047619047,
+            0.4,
+            0.7,
+            0.5555555555555556,
+            0.6111111111111112,
+            0.71875,
+            0.7,
+            0.9545454545454546
           ],
           "prob_pred": [
-            0.06520442549998944,
-            0.1422078636559573,
-            0.24401480033993722,
-            0.3387624117044302,
-            0.4452136772520402,
-            0.5632165511449178,
-            0.6466921733485328,
-            0.7481541673342387,
-            0.8487763611169962,
-            0.9538841262096311
+            0.0635170863630871,
+            0.1334540926747852,
+            0.24510006464663006,
+            0.3580542981624603,
+            0.44842434823513033,
+            0.56082441078292,
+            0.6479236715369754,
+            0.7544613741338253,
+            0.8461170613765716,
+            0.9531956802714955
           ]
         }
       }
@@ -385,7 +385,7 @@
       "model_name": "XGBoost Tuned",
       "model_type": "XGBClassifier",
       "random_state": 42,
-      "dataset_path": "C:\\Developement\\-Lead-Scoring-and-CRM-system\\cleaned_leads.csv",
+      "dataset_path": "C:\\Users\\HP\\-Lead-Scoring-and-CRM-system\\cleaned_leads.csv",
       "total_resolved_records": 1017,
       "dataset_summary": {
         "total_records": 1200,
@@ -413,40 +413,40 @@
         "colsample_bytree": 0.8
       },
       "validation": {
-        "roc_auc": 0.823074494949495,
-        "accuracy": 0.7730061349693251,
-        "precision": 0.7672413793103449,
-        "recall": 0.898989898989899,
-        "f1": 0.827906976744186,
-        "log_loss": 0.5060475999370343,
-        "pr_auc": 0.8623173229830993,
+        "roc_auc": 0.828125,
+        "accuracy": 0.7607361963190185,
+        "precision": 0.7631578947368421,
+        "recall": 0.8787878787878788,
+        "f1": 0.8169014084507042,
+        "log_loss": 0.5020949249702096,
+        "pr_auc": 0.8716699505891606,
         "confusion_matrix": [
           [
             37,
             27
           ],
           [
-            10,
-            89
+            12,
+            87
           ]
         ]
       },
       "test": {
-        "roc_auc": 0.8086189516129032,
-        "accuracy": 0.7401960784313726,
-        "precision": 0.7709923664122137,
-        "recall": 0.8145161290322581,
-        "f1": 0.792156862745098,
-        "log_loss": 0.5192806093739976,
-        "pr_auc": 0.8653958145804127,
+        "roc_auc": 0.7932459677419355,
+        "accuracy": 0.7156862745098039,
+        "precision": 0.7578125,
+        "recall": 0.782258064516129,
+        "f1": 0.7698412698412699,
+        "log_loss": 0.5323915814987743,
+        "pr_auc": 0.8533789891121926,
         "confusion_matrix": [
           [
-            50,
-            30
+            49,
+            31
           ],
           [
-            23,
-            101
+            27,
+            97
           ]
         ]
       },
@@ -461,11 +461,11 @@
         },
         "top_20": {
           "k": 20,
-          "precision_at_k": 0.95,
-          "recall_at_k": 0.1532258064516129,
-          "conversion_rate": 0.95,
-          "lift_at_k": 1.5629032258064517,
-          "conversions_found": 19
+          "precision_at_k": 0.9,
+          "recall_at_k": 0.14516129032258066,
+          "conversion_rate": 0.9,
+          "lift_at_k": 1.4806451612903226,
+          "conversions_found": 18
         },
         "top_41": {
           "k": 41,
@@ -477,31 +477,31 @@
         }
       },
       "calibration": {
-        "brier_score": 0.1734608969191215,
+        "brier_score": 0.1794165540399578,
         "calibration_curve": {
           "prob_true": [
             0.0,
-            0.21428571428571427,
-            0.125,
-            0.375,
-            0.5625,
-            0.6129032258064516,
-            0.7142857142857143,
-            0.7878787878787878,
-            0.8947368421052632,
-            0.95
+            0.25,
+            0.13636363636363635,
+            0.45,
+            0.631578947368421,
+            0.6296296296296297,
+            0.6538461538461539,
+            0.71875,
+            0.9565217391304348,
+            0.9
           ],
           "prob_pred": [
-            0.07483675330877304,
-            0.16240119561553001,
-            0.24840022064745426,
-            0.35400798668464023,
-            0.4560944866389036,
-            0.5497683786576794,
-            0.6570835901158196,
-            0.756126040762121,
-            0.8534889158449674,
-            0.9374562591314316
+            0.08143761257330577,
+            0.1543755599608024,
+            0.25652817298065533,
+            0.3498848408460617,
+            0.4461154341697693,
+            0.5451284558684738,
+            0.6466683195187495,
+            0.7490788977593184,
+            0.8521665153296097,
+            0.9327711403369904
           ]
         }
       }
@@ -512,9 +512,9 @@
   "best_overall_model": "Tuned XGBoost",
   "selection_reason": "Selected as BEST_OVERALL_MODEL for achieving the highest Test ROC-AUC (0.8086), highest Test PR-AUC (0.8654), highest Test F1 Score (0.7922), lowest Test Log Loss (0.5193), and 100% precision in top 10 lead recommendations (Precision@10 = 1.0000, Lift@10 = 1.6452x).",
   "canonical_artifacts": {
-    "best_model": "C:\\Developement\\-Lead-Scoring-and-CRM-system\\ml\\artifacts\\models\\best_model.joblib",
-    "model_metadata": "C:\\Developement\\-Lead-Scoring-and-CRM-system\\ml\\artifacts\\models\\model_metadata.json",
-    "comparison_report": "C:\\Developement\\-Lead-Scoring-and-CRM-system\\ml\\artifacts\\reports\\final_model_comparison.md",
-    "model_card": "C:\\Developement\\-Lead-Scoring-and-CRM-system\\ml\\artifacts\\reports\\model_card.md"
+    "best_model": "C:\\Users\\HP\\-Lead-Scoring-and-CRM-system\\ml\\artifacts\\models\\best_model.joblib",
+    "model_metadata": "C:\\Users\\HP\\-Lead-Scoring-and-CRM-system\\ml\\artifacts\\models\\model_metadata.json",
+    "comparison_report": "C:\\Users\\HP\\-Lead-Scoring-and-CRM-system\\ml\\artifacts\\reports\\final_model_comparison.md",
+    "model_card": "C:\\Users\\HP\\-Lead-Scoring-and-CRM-system\\ml\\artifacts\\reports\\model_card.md"
   }
 }

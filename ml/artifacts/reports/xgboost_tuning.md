@@ -1,6 +1,6 @@
 # XGBoost Hyperparameter Tuning Report
 
-**Generated At**: `2026-09-02T09:34:30Z`  
+**Generated At**: `2026-09-06T18:13:24Z`  
 **Phase**: Phase 5 XGBoost Hyperparameter Tuning  
 **Status**: Completed
 
@@ -69,23 +69,23 @@
 
 ### Validation Set Results ($N=163$)
 
-- **ROC-AUC**: 0.8231
-- **PR-AUC**: 0.8623
-- **Accuracy**: 0.7730
-- **Precision**: 0.7672
-- **Recall**: 0.8990
-- **F1 Score**: 0.8279
-- **Log Loss**: 0.5060
+- **ROC-AUC**: 0.8281
+- **PR-AUC**: 0.8717
+- **Accuracy**: 0.7607
+- **Precision**: 0.7632
+- **Recall**: 0.8788
+- **F1 Score**: 0.8169
+- **Log Loss**: 0.5021
 
 ### Test Set Results ($N=204$)
 
-- **ROC-AUC**: 0.8086
-- **PR-AUC**: 0.8654
-- **Accuracy**: 0.7402
-- **Precision**: 0.7710
-- **Recall**: 0.8145
-- **F1 Score**: 0.7922
-- **Log Loss**: 0.5193
+- **ROC-AUC**: 0.7932
+- **PR-AUC**: 0.8534
+- **Accuracy**: 0.7157
+- **Precision**: 0.7578
+- **Recall**: 0.7823
+- **F1 Score**: 0.7698
+- **Log Loss**: 0.5324
 
 ---
 
@@ -94,7 +94,7 @@
 | Segment | Precision@K | Recall@K | Conversion Rate | Lift@K | Conversions Found |
 |---|---|---|---|---|---|
 | **Top 10 Leads** ($K=10$) | 1.0000 | 0.0806 | 1.0000 | 1.6452x | 10 |
-| **Top 20 Leads** ($K=20$) | 0.9500 | 0.1532 | 0.9500 | 1.5629x | 19 |
+| **Top 20 Leads** ($K=20$) | 0.9000 | 0.1452 | 0.9000 | 1.4806x | 18 |
 | **Top 20% Leads** ($K=41$) | 0.9268 | 0.3065 | 0.9268 | 1.5248x | 38 |
 
 ---
@@ -105,10 +105,10 @@ Comparison of tuned XGBoost vs untuned XGBoost baseline on held-out test data:
 
 | Metric | XGBoost Baseline | XGBoost Tuned | Difference (Tuned - Baseline) | Status |
 |---|---|---|---|---|
-| **ROC-AUC** | 0.7841 | 0.8086 | +0.0245 | Improved ↑ |
-| **PR-AUC** | 0.8409 | 0.8654 | +0.0245 | Improved ↑ |
-| **F1 Score** | 0.7717 | 0.7922 | +0.0205 | Improved ↑ |
-| **Log Loss** | 0.5541 | 0.5193 | -0.0348 | Improved ↓ |
+| **ROC-AUC** | 0.7869 | 0.7932 | +0.0064 | Improved ↑ |
+| **PR-AUC** | 0.8388 | 0.8534 | +0.0146 | Improved ↑ |
+| **F1 Score** | 0.7812 | 0.7698 | -0.0114 | Worsened/Equal |
+| **Log Loss** | 0.5479 | 0.5324 | -0.0155 | Improved ↓ |
 
 ---
 

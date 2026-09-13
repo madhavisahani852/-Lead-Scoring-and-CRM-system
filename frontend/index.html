@@ -1,0 +1,1040 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>LeadScore AI — CRM Intelligence Platform</title>
+  <meta name="description" content="Production ML-Powered Lead Scoring, Pipeline Management & CRM Intelligence">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/static/styles.css">
+</head>
+<body>
+
+  <!-- ============================================================
+       TOAST NOTIFICATION CONTAINER
+  ============================================================ -->
+  <div id="toast-container" class="toast-container"></div>
+
+  <!-- ============================================================
+       MAIN APPLICATION (Direct Open)
+  ============================================================ -->
+  <div class="app-container" id="main-app">
+
+    <!-- Sidebar Navigation -->
+    <aside class="sidebar" id="sidebar">
+      <div class="sidebar-header">
+        <div class="brand-icon">LS</div>
+        <div class="brand-info">
+          <h1>LeadScore AI</h1>
+          <p>CRM Intelligence</p>
+        </div>
+      </div>
+
+      <nav class="sidebar-nav">
+        <a class="nav-item active" data-tab="dashboard" id="nav-dashboard">
+          <span class="nav-icon">📊</span>
+          <span class="nav-text">Dashboard</span>
+        </a>
+        <a class="nav-item" data-tab="scoring" id="nav-scoring">
+          <span class="nav-icon">🎯</span>
+          <span class="nav-text">Lead Scoring</span>
+        </a>
+        <a class="nav-item" data-tab="leads" id="nav-leads">
+          <span class="nav-icon">📋</span>
+          <span class="nav-text">Leads Explorer</span>
+        </a>
+        <a class="nav-item" data-tab="pipeline" id="nav-pipeline">
+          <span class="nav-icon">🏗️</span>
+          <span class="nav-text">Pipeline Board</span>
+        </a>
+        <a class="nav-item" data-tab="analytics" id="nav-analytics">
+          <span class="nav-icon">📈</span>
+          <span class="nav-text">Analytics</span>
+        </a>
+        <a class="nav-item" data-tab="import" id="nav-import">
+          <span class="nav-icon">📂</span>
+          <span class="nav-text">CSV Import</span>
+        </a>
+        <a class="nav-item" data-tab="model" id="nav-model">
+          <span class="nav-icon">🧠</span>
+          <span class="nav-text">Model Telemetry</span>
+        </a>
+      </nav>
+
+      <div class="sidebar-footer">
+        <div class="status-dot"></div>
+        <span class="sidebar-footer-text">XGBoost v1.0 Online</span>
+      </div>
+    </aside>
+
+    <!-- Main Content Viewport -->
+    <main class="main-content">
+
+      <!-- Top Bar -->
+      <header class="top-bar">
+        <button class="sidebar-toggle" id="sidebar-toggle" onclick="toggleSidebar()" aria-label="Toggle sidebar">☰</button>
+        <div class="page-title">
+          <h2 id="current-view-title">Executive Dashboard</h2>
+          <p id="current-view-subtitle">Real-time Lead Scoring &amp; CRM Pipeline Overview</p>
+        </div>
+        <div class="top-actions">
+          <div class="model-badge">
+            <span>⚡ Best Model: Tuned XGBoost</span>
+          </div>
+          <div class="user-menu" id="user-menu">
+            <div class="user-avatar" id="user-avatar" onclick="toggleUserDropdown()">
+              <span id="user-initials">SA</span>
+            </div>
+            <div class="user-dropdown" id="user-dropdown" style="display:none;">
+              <div class="user-dropdown-info">
+                <strong id="user-display-name">Sales Admin</strong>
+                <span id="user-display-role">Sales Manager</span>
+              </div>
+              <hr style="border-color: var(--border-color); margin: 8px 0;">
+              <button class="user-dropdown-item" onclick="handleLogout()">🚪 Sign Out</button>
+            </div>
+          </div>
+        </div>
+      </header>
+
+      <div class="content-body">
+
+        <!-- =============================================
+             DASHBOARD VIEW
+        ============================================= -->
+        <section id="dashboard-view" class="tab-view active">
+
+          <!-- KPI Cards -->
+          <div class="grid-4" style="margin-bottom: 24px;">
+            <div class="card kpi-card">
+              <div class="kpi-header">
+                <span>Total Leads</span>
+                <div class="kpi-icon">👥</div>
+              </div>
+              <div class="kpi-value" id="kpi-total-leads">
+                <div class="skeleton skeleton-text" style="width:80px;height:32px;"></div>
+              </div>
+              <div class="kpi-subtitle">Active Pipeline Dataset</div>
+            </div>
+
+            <div class="card kpi-card">
+              <div class="kpi-header">
+                <span>High Priority Leads</span>
+                <div class="kpi-icon" style="background-color: var(--high-priority-bg); color: var(--high-priority);">🔥</div>
+              </div>
+              <div class="kpi-value" id="kpi-high-leads" style="color: var(--high-priority);">
+                <div class="skeleton skeleton-text" style="width:60px;height:32px;"></div>
+              </div>
+              <div class="kpi-subtitle" id="kpi-high-pct">Loading...</div>
+            </div>
+
+            <div class="card kpi-card">
+              <div class="kpi-header">
+                <span>Average Lead Score</span>
+                <div class="kpi-icon">🎯</div>
+              </div>
+              <div class="kpi-value" id="kpi-avg-score">
+                <div class="skeleton skeleton-text" style="width:60px;height:32px;"></div>
+              </div>
+              <div class="kpi-subtitle">Out of 100 benchmark</div>
+            </div>
+
+            <div class="card kpi-card">
+              <div class="kpi-header">
+                <span>Predicted Conversion</span>
+                <div class="kpi-icon">📈</div>
+              </div>
+              <div class="kpi-value" id="kpi-conversion-rate">
+                <div class="skeleton skeleton-text" style="width:60px;height:32px;"></div>
+              </div>
+              <div class="kpi-subtitle">Overall CRM Conversion</div>
+            </div>
+          </div>
+
+          <!-- Charts Row -->
+          <div class="grid-2" style="margin-bottom: 24px;">
+            <div class="card">
+              <div class="card-header">
+                <h3 class="card-title">Priority Tier Breakdown</h3>
+              </div>
+              <div id="dashboard-priority-chart" style="display: flex; flex-direction: column; gap: 16px; padding: 10px 0;">
+                <div class="skeleton skeleton-block" style="height:20px;border-radius:4px;"></div>
+                <div class="skeleton skeleton-block" style="height:20px;border-radius:4px;"></div>
+                <div class="skeleton skeleton-block" style="height:20px;border-radius:4px;"></div>
+              </div>
+            </div>
+
+            <div class="card">
+              <div class="card-header">
+                <h3 class="card-title">Score Distribution Overview</h3>
+              </div>
+              <div class="chart-container" id="dashboard-score-chart">
+                <div class="chart-loading">
+                  <div class="spinner-dark"></div>
+                  <span>Loading chart data...</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Top Leads Preview -->
+          <div class="card">
+            <div class="card-header">
+              <h3 class="card-title">Top Scored High-Intent Leads</h3>
+              <button class="btn-secondary" onclick="switchTab('leads')">View All Leads →</button>
+            </div>
+            <div class="table-container">
+              <table class="data-table">
+                <thead>
+                  <tr>
+                    <th>Lead ID</th>
+                    <th>Name / Company</th>
+                    <th>Industry</th>
+                    <th>Source</th>
+                    <th>Lead Score</th>
+                    <th>Probability</th>
+                    <th>Priority</th>
+                    <th>Action</th>
+                  </tr>
+                </thead>
+                <tbody id="top-leads-tbody">
+                  <tr class="skeleton-row"><td colspan="8"><div class="skeleton skeleton-block" style="height:16px;"></div></td></tr>
+                  <tr class="skeleton-row"><td colspan="8"><div class="skeleton skeleton-block" style="height:16px;"></div></td></tr>
+                  <tr class="skeleton-row"><td colspan="8"><div class="skeleton skeleton-block" style="height:16px;"></div></td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
+        <!-- =============================================
+             LEAD SCORING VIEW
+        ============================================= -->
+        <section id="scoring-view" class="tab-view">
+
+          <!-- Priority Queue -->
+          <div class="card" style="margin-bottom:20px;">
+            <div class="card-header">
+              <h3 class="card-title">🏆 Priority Queue — Top Leads to Contact</h3>
+              <span style="font-size:12px;color:var(--text-muted);">Ranked by conversion probability</span>
+            </div>
+            <div id="priority-queue-list" class="priority-queue-list">
+              <div class="empty-state">
+                <div class="spinner-dark"></div>
+                <p>Loading priority queue...</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Preset Bar -->
+          <div class="presets-bar">
+            <span class="presets-label">⚡ Quick Preset:</span>
+            <button class="btn-preset" onclick="loadPreset('saas_enterprise')">🚀 Enterprise SaaS</button>
+            <button class="btn-preset" onclick="loadPreset('growth_ecommerce')">⚡ Growth E-commerce</button>
+            <button class="btn-preset" onclick="loadPreset('low_intent')">❄️ Casual Prospect</button>
+          </div>
+
+          <div class="scoring-layout">
+            <!-- Lead Input Form -->
+            <div class="card">
+              <form id="scoring-form">
+                <div class="form-group-section">
+                  <h3 class="section-title">1. Lead Profile &amp; Firmographics</h3>
+                  <div class="form-grid">
+                    <div class="form-field">
+                      <label class="form-label" for="input-name">Lead Name</label>
+                      <input type="text" id="input-name" class="form-input" value="Ananya Sharma">
+                    </div>
+                    <div class="form-field">
+                      <label class="form-label" for="input-company">Company Name</label>
+                      <input type="text" id="input-company" class="form-input" value="Apex Cloud Systems">
+                    </div>
+                    <div class="form-field">
+                      <label class="form-label" for="input-industry">Industry</label>
+                      <select id="input-industry" class="form-select">
+                        <option value="SaaS" selected>SaaS</option>
+                        <option value="Retail">Retail</option>
+                        <option value="Finance">Finance</option>
+                        <option value="Healthcare">Healthcare</option>
+                        <option value="Real Estate">Real Estate</option>
+                        <option value="E-commerce">E-commerce</option>
+                        <option value="Media">Media</option>
+                        <option value="Logistics">Logistics</option>
+                        <option value="Other">Other</option>
+                      </select>
+                    </div>
+                    <div class="form-field">
+                      <label class="form-label" for="input-company-size">Company Size (Employees)</label>
+                      <input type="number" id="input-company-size" class="form-input" value="250" min="1">
+                    </div>
+                    <div class="form-field">
+                      <label class="form-label" for="input-budget-range">Budget Range</label>
+                      <select id="input-budget-range" class="form-select">
+                        <option value="Unknown">Unknown</option>
+                        <option value="<10k">&lt;10k</option>
+                        <option value="10k-50k">10k-50k</option>
+                        <option value="50k-1L" selected>50k-1L</option>
+                        <option value="1L-5L">1L-5L</option>
+                        <option value="5L+">5L+</option>
+                      </select>
+                    </div>
+                    <div class="form-field">
+                      <label class="form-label" for="input-job-title">Job Title</label>
+                      <input type="text" id="input-job-title" class="form-input" value="VP of Technology">
+                    </div>
+                  </div>
+                </div>
+
+                <div class="form-group-section">
+                  <h3 class="section-title">2. Acquisition &amp; Digital Engagement</h3>
+                  <div class="form-grid">
+                    <div class="form-field">
+                      <label class="form-label" for="input-lead-source">Lead Source</label>
+                      <select id="input-lead-source" class="form-select">
+                        <option value="Website" selected>Website</option>
+                        <option value="Email Campaign">Email Campaign</option>
+                        <option value="Organic Search">Organic Search</option>
+                        <option value="Paid Ads">Paid Ads</option>
+                        <option value="Referral">Referral</option>
+                        <option value="Social Media">Social Media</option>
+                        <option value="Direct">Direct</option>
+                      </select>
+                    </div>
+                    <div class="form-field">
+                      <label class="form-label" for="input-product-interest">Product Interest</label>
+                      <select id="input-product-interest" class="form-select">
+                        <option value="Enterprise Plan" selected>Enterprise Plan</option>
+                        <option value="Growth Plan">Growth Plan</option>
+                        <option value="Starter Plan">Starter Plan</option>
+                        <option value="Add-on Module">Add-on Module</option>
+                      </select>
+                    </div>
+                    <div class="form-field">
+                      <label class="form-label" for="input-website-visits">Website Visits</label>
+                      <input type="number" id="input-website-visits" class="form-input" value="15" min="0">
+                    </div>
+                    <div class="form-field">
+                      <label class="form-label" for="input-page-views">Page Views</label>
+                      <input type="number" id="input-page-views" class="form-input" value="42" min="0">
+                    </div>
+                    <div class="form-field">
+                      <label class="form-label" for="input-pricing-page-visits">Pricing Page Visits</label>
+                      <input type="number" id="input-pricing-page-visits" class="form-input" value="6" min="0">
+                    </div>
+                    <div class="form-field">
+                      <label class="form-label">Demo Requested?</label>
+                      <div class="radio-group">
+                        <label class="radio-label"><input type="radio" name="demo_requested" value="Yes" checked> Yes</label>
+                        <label class="radio-label"><input type="radio" name="demo_requested" value="No"> No</label>
+                        <label class="radio-label"><input type="radio" name="demo_requested" value="Unknown"> Unknown</label>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="form-group-section">
+                  <h3 class="section-title">3. Outreach &amp; Sales Touchpoints</h3>
+                  <div class="form-grid">
+                    <div class="form-field">
+                      <label class="form-label" for="input-email-opens">Email Opens</label>
+                      <input type="number" id="input-email-opens" class="form-input" value="10" min="0">
+                    </div>
+                    <div class="form-field">
+                      <label class="form-label" for="input-form-completions">Form Completions</label>
+                      <input type="number" id="input-form-completions" class="form-input" value="3" min="0">
+                    </div>
+                    <div class="form-field">
+                      <label class="form-label" for="input-content-downloads">Content Downloads</label>
+                      <input type="number" id="input-content-downloads" class="form-input" value="4" min="0">
+                    </div>
+                    <div class="form-field">
+                      <label class="form-label" for="input-previous-interactions">Previous Interactions</label>
+                      <input type="number" id="input-previous-interactions" class="form-input" value="5" min="0">
+                    </div>
+                    <div class="form-field">
+                      <label class="form-label" for="input-response-time">Avg Response Time (Hours)</label>
+                      <input type="number" step="0.1" id="input-response-time" class="form-input" value="1.5" min="0">
+                    </div>
+                    <div class="form-field">
+                      <label class="form-label" for="input-num-calls">Sales Calls Count</label>
+                      <input type="number" id="input-num-calls" class="form-input" value="3" min="0">
+                    </div>
+                    <div class="form-field full-width">
+                      <label class="form-label" for="input-num-meetings">Sales Meetings Completed</label>
+                      <input type="number" id="input-num-meetings" class="form-input" value="2" min="0">
+                    </div>
+                  </div>
+                </div>
+
+                <button type="submit" id="btn-submit-score" class="btn-primary">
+                  <span>Calculate Lead Score</span>
+                </button>
+              </form>
+            </div>
+
+            <!-- Prediction Result Card -->
+            <div class="card result-card">
+              <div class="card-header">
+                <h3 class="card-title">Prediction Result</h3>
+                <span id="result-status-tag" style="font-size: 11px; color: var(--text-muted);">Ready</span>
+              </div>
+
+              <!-- Score Gauge -->
+              <div class="score-display-box">
+                <div id="result-priority-badge" class="priority-badge priority-high">HIGH PRIORITY</div>
+                <div class="score-gauge-wrapper">
+                  <svg id="score-gauge-svg" viewBox="0 0 120 70" width="220" height="120">
+                    <path d="M10,70 A50,50 0 0,1 110,70" fill="none" stroke="#e2e8f0" stroke-width="10" stroke-linecap="round"/>
+                    <path id="gauge-arc" d="M10,70 A50,50 0 0,1 110,70" fill="none" stroke="#16a34a" stroke-width="10" stroke-linecap="round"
+                      stroke-dasharray="157" stroke-dashoffset="0" style="transition: stroke-dashoffset 0.8s ease, stroke 0.4s ease;"/>
+                  </svg>
+                  <div class="score-number" id="result-score">97 <span>/ 100</span></div>
+                </div>
+                <p id="result-probability" style="font-size: 13px; font-weight: 600; color: var(--text-secondary); margin-top:4px;">
+                  96.5% Estimated Conversion Probability
+                </p>
+              </div>
+
+              <!-- Recommended Action -->
+              <div class="action-recommendation">
+                <h4>Recommended Next Action</h4>
+                <p id="result-action">🔥 Immediate Outreach: Assign Senior Account Executive immediately. Initiate phone contact within 2 hours.</p>
+              </div>
+
+              <!-- Key Drivers -->
+              <div>
+                <h4 style="font-size: 12px; font-weight: 700; text-transform: uppercase; color: var(--text-secondary); margin-bottom: 8px;">Key Score Drivers</h4>
+                <div class="drivers-list" id="result-drivers"></div>
+              </div>
+
+              <button class="btn-secondary" onclick="resetForm()">Reset Form</button>
+            </div>
+          </div>
+        </section>
+
+        <!-- =============================================
+             LEADS EXPLORER VIEW
+        ============================================= -->
+        <section id="leads-view" class="tab-view">
+          <div class="card">
+            <!-- Filter Bar -->
+            <div class="table-filter-bar">
+              <div class="search-box">
+                <span class="search-icon">🔍</span>
+                <input type="text" id="leads-search" placeholder="Search by name, company, ID..." onkeyup="handleLeadsSearch()">
+              </div>
+              <div class="filter-group">
+                <select id="leads-filter-priority" class="form-select" onchange="fetchLeadsData(1)">
+                  <option value="All">All Priorities</option>
+                  <option value="High">High Priority</option>
+                  <option value="Medium">Medium Priority</option>
+                  <option value="Low">Low Priority</option>
+                </select>
+                <select id="leads-filter-industry" class="form-select" onchange="fetchLeadsData(1)">
+                  <option value="All">All Industries</option>
+                  <option value="SaaS">SaaS</option>
+                  <option value="Retail">Retail</option>
+                  <option value="Finance">Finance</option>
+                  <option value="Healthcare">Healthcare</option>
+                  <option value="Real Estate">Real Estate</option>
+                  <option value="E-commerce">E-commerce</option>
+                  <option value="Media">Media</option>
+                  <option value="Logistics">Logistics</option>
+                </select>
+                <select id="leads-sort-by" class="form-select" onchange="fetchLeadsData(1)">
+                  <option value="lead_score">Sort: Lead Score ↓</option>
+                  <option value="company_size">Sort: Company Size</option>
+                  <option value="created_date">Sort: Created Date</option>
+                </select>
+                <button class="btn-primary" style="white-space:nowrap;padding:9px 16px;" onclick="openCreateLeadModal()">+ Create Lead</button>
+              </div>
+            </div>
+
+            <!-- Leads Table -->
+            <div class="table-container">
+              <table class="data-table">
+                <thead>
+                  <tr>
+                    <th>Lead ID</th>
+                    <th>Name</th>
+                    <th>Company</th>
+                    <th>Industry</th>
+                    <th>Source</th>
+                    <th>Company Size</th>
+                    <th>Lead Score</th>
+                    <th>Priority</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody id="leads-table-body">
+                  <!-- Dynamic rows -->
+                </tbody>
+              </table>
+            </div>
+
+            <!-- Pagination -->
+            <div class="pagination-bar">
+              <span id="leads-pagination-info">Loading...</span>
+              <div class="pagination-controls">
+                <button class="page-btn" id="btn-prev-page" onclick="changeLeadsPage(-1)">← Previous</button>
+                <span id="current-page-indicator" style="font-weight: 600; padding: 0 8px;">Page 1</span>
+                <button class="page-btn" id="btn-next-page" onclick="changeLeadsPage(1)">Next →</button>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- =============================================
+             PIPELINE BOARD VIEW
+        ============================================= -->
+        <section id="pipeline-view" class="tab-view">
+          <div class="pipeline-header">
+            <div class="pipeline-summary" id="pipeline-summary">
+              <!-- Stage totals inserted by JS -->
+            </div>
+            <button class="btn-secondary" onclick="refreshPipeline()">↻ Refresh Board</button>
+          </div>
+
+          <div class="pipeline-board" id="pipeline-board">
+            <!-- Kanban columns inserted by JS -->
+          </div>
+        </section>
+
+        <!-- =============================================
+             ANALYTICS VIEW
+        ============================================= -->
+        <section id="analytics-view" class="tab-view">
+
+          <!-- Additional KPIs -->
+          <div class="grid-4" style="margin-bottom:24px;">
+            <div class="card kpi-card">
+              <div class="kpi-header"><span>Scored Leads</span><div class="kpi-icon">🤖</div></div>
+              <div class="kpi-value" id="ana-scored-leads">--</div>
+              <div class="kpi-subtitle">With ML predictions</div>
+            </div>
+            <div class="card kpi-card">
+              <div class="kpi-header"><span>High Priority</span><div class="kpi-icon" style="background:var(--high-priority-bg);color:var(--high-priority);">🔥</div></div>
+              <div class="kpi-value" id="ana-high-priority" style="color:var(--high-priority);">--</div>
+              <div class="kpi-subtitle" id="ana-high-pct">--% of pipeline</div>
+            </div>
+            <div class="card kpi-card">
+              <div class="kpi-header"><span>Avg Conversion Prob.</span><div class="kpi-icon">📊</div></div>
+              <div class="kpi-value" id="ana-avg-prob">--%</div>
+              <div class="kpi-subtitle">Model-predicted average</div>
+            </div>
+            <div class="card kpi-card">
+              <div class="kpi-header"><span>Top Source</span><div class="kpi-icon">🌐</div></div>
+              <div class="kpi-value" id="ana-top-source" style="font-size:18px;">--</div>
+              <div class="kpi-subtitle" id="ana-top-source-rate">-- conv. rate</div>
+            </div>
+          </div>
+
+          <!-- Charts Row 1 -->
+          <div class="grid-2" style="margin-bottom: 24px;">
+            <div class="card">
+              <div class="card-header">
+                <h3 class="card-title">Conversion Rate by Lead Source</h3>
+              </div>
+              <div class="chart-container" id="analytics-source-chart">
+                <div class="chart-loading"><div class="spinner-dark"></div><span>Loading...</span></div>
+              </div>
+            </div>
+
+            <div class="card">
+              <div class="card-header">
+                <h3 class="card-title">Score Distribution Trend</h3>
+              </div>
+              <div class="chart-container" id="analytics-trend-chart">
+                <div class="chart-loading"><div class="spinner-dark"></div><span>Loading...</span></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Industry Performance Table -->
+          <div class="grid-2" style="margin-bottom:24px;">
+            <div class="card">
+              <div class="card-header">
+                <h3 class="card-title">Industry Performance &amp; Lead Quality</h3>
+              </div>
+              <div class="table-container">
+                <table class="data-table">
+                  <thead>
+                    <tr>
+                      <th>Industry</th>
+                      <th>Leads</th>
+                      <th>Avg Score</th>
+                      <th>Conv. Rate</th>
+                      <th>High Priority %</th>
+                    </tr>
+                  </thead>
+                  <tbody id="analytics-industry-tbody">
+                    <tr><td colspan="5" class="table-loading-cell"><div class="spinner-dark"></div></td></tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            <!-- Source Performance Table -->
+            <div class="card">
+              <div class="card-header">
+                <h3 class="card-title">Source Performance Metrics</h3>
+              </div>
+              <div class="table-container">
+                <table class="data-table">
+                  <thead>
+                    <tr>
+                      <th>Source</th>
+                      <th>Leads</th>
+                      <th>Avg Score</th>
+                      <th>Conv. Rate</th>
+                    </tr>
+                  </thead>
+                  <tbody id="analytics-source-tbody">
+                    <tr><td colspan="4" class="table-loading-cell"><div class="spinner-dark"></div></td></tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+
+          <!-- Model Info Section -->
+          <div class="card" id="analytics-model-section">
+            <div class="card-header">
+              <h3 class="card-title">🧠 Model Information</h3>
+              <span id="analytics-model-name" style="font-size:12px;color:var(--text-muted);"></span>
+            </div>
+            <div class="grid-4" id="analytics-model-metrics" style="margin-bottom:16px;gap:12px;">
+              <div class="skeleton skeleton-block" style="height:60px;"></div>
+              <div class="skeleton skeleton-block" style="height:60px;"></div>
+              <div class="skeleton skeleton-block" style="height:60px;"></div>
+              <div class="skeleton skeleton-block" style="height:60px;"></div>
+            </div>
+            <p id="analytics-model-reason" style="font-size:12px;color:var(--text-secondary);"></p>
+          </div>
+        </section>
+
+        <!-- =============================================
+             CSV IMPORT VIEW
+        ============================================= -->
+        <section id="import-view" class="tab-view">
+          <div class="grid-2" style="margin-bottom:24px;align-items:start;">
+
+            <!-- Upload Zone -->
+            <div class="card">
+              <div class="card-header">
+                <h3 class="card-title">📂 Upload CSV File</h3>
+              </div>
+              <div class="dropzone" id="csv-dropzone"
+                   ondragover="handleDragOver(event)"
+                   ondragleave="handleDragLeave(event)"
+                   ondrop="handleDrop(event)"
+                   onclick="document.getElementById('csv-file-input').click()">
+                <div class="dropzone-icon">📄</div>
+                <p class="dropzone-title">Drag &amp; drop your CSV here</p>
+                <p class="dropzone-hint">or click to browse files</p>
+                <input type="file" id="csv-file-input" accept=".csv" style="display:none;" onchange="handleFileSelect(event)">
+              </div>
+
+              <div style="margin-top:16px;">
+                <h4 style="font-size:12px;font-weight:700;color:var(--text-secondary);text-transform:uppercase;margin-bottom:8px;">Required Columns</h4>
+                <div class="required-columns-grid">
+                  <span class="col-tag">industry</span>
+                  <span class="col-tag">company_size</span>
+                  <span class="col-tag">lead_source</span>
+                  <span class="col-tag">product_interest</span>
+                  <span class="col-tag">budget_range</span>
+                  <span class="col-tag">website_visits</span>
+                  <span class="col-tag">pricing_page_visits</span>
+                  <span class="col-tag">demo_requested</span>
+                  <span class="col-tag">email_opens</span>
+                  <span class="col-tag">num_meetings</span>
+                </div>
+              </div>
+
+              <!-- Import Progress -->
+              <div id="import-progress-section" style="margin-top:20px;display:none;">
+                <div style="display:flex;justify-content:space-between;font-size:13px;font-weight:600;margin-bottom:6px;">
+                  <span>Importing leads...</span>
+                  <span id="import-progress-label">0%</span>
+                </div>
+                <div style="background:var(--bg-main);height:8px;border-radius:4px;overflow:hidden;">
+                  <div id="import-progress-bar" style="height:100%;background:var(--primary);width:0%;transition:width 0.3s ease;border-radius:4px;"></div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Import Result Summary -->
+            <div class="card" id="import-result-card" style="display:none;">
+              <div class="card-header">
+                <h3 class="card-title">Import Summary</h3>
+              </div>
+              <div class="import-summary-grid">
+                <div class="summary-stat success">
+                  <div class="summary-stat-value" id="import-stat-imported">0</div>
+                  <div class="summary-stat-label">✅ Imported</div>
+                </div>
+                <div class="summary-stat warning">
+                  <div class="summary-stat-value" id="import-stat-skipped">0</div>
+                  <div class="summary-stat-label">⚠️ Skipped</div>
+                </div>
+                <div class="summary-stat error">
+                  <div class="summary-stat-value" id="import-stat-errors">0</div>
+                  <div class="summary-stat-label">❌ Errors</div>
+                </div>
+                <div class="summary-stat neutral">
+                  <div class="summary-stat-value" id="import-stat-total">0</div>
+                  <div class="summary-stat-label">📊 Total Rows</div>
+                </div>
+              </div>
+              <div id="import-score-results" style="margin-top:16px;">
+                <!-- Scored leads summary -->
+              </div>
+            </div>
+          </div>
+
+          <!-- Validation Feedback Table -->
+          <div class="card" id="import-validation-card" style="display:none;">
+            <div class="card-header">
+              <h3 class="card-title">Validation Results</h3>
+              <div style="display:flex;gap:8px;">
+                <button class="btn-secondary" id="btn-import-run" onclick="runImport()" style="display:none;">
+                  ⬆️ Import Valid Rows
+                </button>
+                <button class="btn-secondary" onclick="resetImport()">✕ Clear</button>
+              </div>
+            </div>
+            <div class="table-container">
+              <table class="data-table">
+                <thead>
+                  <tr>
+                    <th>Row #</th>
+                    <th>Name</th>
+                    <th>Company</th>
+                    <th>Industry</th>
+                    <th>Status</th>
+                    <th>Issues</th>
+                  </tr>
+                </thead>
+                <tbody id="import-validation-tbody"></tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
+        <!-- =============================================
+             MODEL TELEMETRY VIEW
+        ============================================= -->
+        <section id="model-view" class="tab-view">
+          <div class="grid-2" style="margin-bottom: 24px;">
+
+            <!-- Model Performance Metrics -->
+            <div class="card">
+              <div class="card-header">
+                <h3 class="card-title">Tuned XGBoost Evaluation Metrics</h3>
+              </div>
+              <div class="grid-2" style="gap: 12px; margin-bottom: 16px;">
+                <div class="metric-box">
+                  <div class="metric-label">TEST ROC-AUC</div>
+                  <div class="metric-value primary" id="metric-roc-auc">0.8086</div>
+                </div>
+                <div class="metric-box">
+                  <div class="metric-label">PRECISION @ TOP 10</div>
+                  <div class="metric-value success" id="metric-prec-10">100.0%</div>
+                </div>
+                <div class="metric-box">
+                  <div class="metric-label">TEST PR-AUC</div>
+                  <div class="metric-value" id="metric-pr-auc">0.8654</div>
+                </div>
+                <div class="metric-box">
+                  <div class="metric-label">TEST F1 SCORE</div>
+                  <div class="metric-value" id="metric-f1">0.7922</div>
+                </div>
+              </div>
+              <p style="font-size: 12px; color: var(--text-secondary);" id="model-selection-reason">
+                Selected as production model for achieving highest test ROC-AUC and 1.64x conversion lift in top recommended leads.
+              </p>
+            </div>
+
+            <!-- Confusion Matrix -->
+            <div class="card">
+              <div class="card-header">
+                <h3 class="card-title">Test Set Confusion Matrix (N=204)</h3>
+              </div>
+              <div class="confusion-matrix">
+                <div class="cm-cell tn"><div class="cm-value">50</div><div class="cm-label">True Negatives (TN)</div></div>
+                <div class="cm-cell fp"><div class="cm-value">30</div><div class="cm-label">False Positives (FP)</div></div>
+                <div class="cm-cell fn"><div class="cm-value">23</div><div class="cm-label">False Negatives (FN)</div></div>
+                <div class="cm-cell tp"><div class="cm-value">101</div><div class="cm-label">True Positives (TP)</div></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Feature Importance Table -->
+          <div class="card">
+            <div class="card-header">
+              <h3 class="card-title">Top Predictive Model Features</h3>
+            </div>
+            <div class="table-container">
+              <table class="data-table">
+                <thead>
+                  <tr>
+                    <th>Feature Name</th>
+                    <th>Category</th>
+                    <th>Description</th>
+                    <th>Relative Importance</th>
+                  </tr>
+                </thead>
+                <tbody id="model-features-tbody">
+                  <tr><td colspan="4" class="table-loading-cell"><div class="spinner-dark"></div></td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
+      </div><!-- /content-body -->
+    </main>
+  </div><!-- /main-app -->
+
+  <!-- ============================================================
+       LEAD DETAIL MODAL
+  ============================================================ -->
+  <div id="lead-detail-modal" class="modal-overlay" style="display:none;" onclick="closeLeadDetailModal(event)">
+    <div class="modal-box modal-lg" onclick="event.stopPropagation()">
+      <div class="modal-header">
+        <div>
+          <h3 class="modal-title" id="detail-modal-title">Lead Details</h3>
+          <p style="font-size:12px;color:var(--text-muted);" id="detail-modal-subtitle">CRM Profile &amp; Engagement Overview</p>
+        </div>
+        <button class="modal-close" onclick="closeLeadDetailModal()">&times;</button>
+      </div>
+
+      <div class="modal-body">
+        <div class="detail-layout">
+
+          <!-- Left: Score Card + CRM Info -->
+          <div class="detail-left">
+            <!-- Score Card -->
+            <div class="detail-score-card" id="detail-score-card">
+              <div id="detail-priority-badge" class="priority-badge priority-high">HIGH PRIORITY</div>
+              <div class="detail-score-number" id="detail-score-number">--</div>
+              <div class="detail-score-label">Lead Score / 100</div>
+              <div id="detail-probability" style="margin-top:8px;font-size:13px;font-weight:600;color:var(--text-secondary);">--%</div>
+            </div>
+
+            <!-- CRM Info -->
+            <div class="detail-info-section">
+              <h4 class="detail-section-title">Contact Information</h4>
+              <div class="info-grid">
+                <div class="info-item"><span class="info-label">Name</span><span class="info-value" id="d-name">--</span></div>
+                <div class="info-item"><span class="info-label">Company</span><span class="info-value" id="d-company">--</span></div>
+                <div class="info-item"><span class="info-label">Job Title</span><span class="info-value" id="d-job-title">--</span></div>
+                <div class="info-item"><span class="info-label">Industry</span><span class="info-value" id="d-industry">--</span></div>
+                <div class="info-item"><span class="info-label">Company Size</span><span class="info-value" id="d-company-size">--</span></div>
+                <div class="info-item"><span class="info-label">Budget Range</span><span class="info-value" id="d-budget">--</span></div>
+                <div class="info-item"><span class="info-label">Lead Source</span><span class="info-value" id="d-source">--</span></div>
+                <div class="info-item"><span class="info-label">Product Interest</span><span class="info-value" id="d-product">--</span></div>
+              </div>
+            </div>
+
+            <!-- Assignment -->
+            <div class="detail-info-section">
+              <h4 class="detail-section-title">Assignment</h4>
+              <div class="assignment-row">
+                <select class="form-select" id="detail-assign-rep">
+                  <option value="">-- Unassigned --</option>
+                  <option value="Priya Nair">Priya Nair (AE)</option>
+                  <option value="Rahul Mehta">Rahul Mehta (SDR)</option>
+                  <option value="Sneha Kapoor">Sneha Kapoor (AE)</option>
+                  <option value="Arjun Sharma">Arjun Sharma (Sr. AE)</option>
+                  <option value="Kavya Reddy">Kavya Reddy (SDR)</option>
+                </select>
+                <select class="form-select" id="detail-pipeline-stage">
+                  <option value="New">New</option>
+                  <option value="Qualified">Qualified</option>
+                  <option value="Demo Scheduled">Demo Scheduled</option>
+                  <option value="Proposal">Proposal</option>
+                  <option value="Won">Won</option>
+                  <option value="Lost">Lost</option>
+                </select>
+                <button class="btn-primary" style="white-space:nowrap;" onclick="saveLeadAssignment()">Save</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Right: Engagement Metrics + Activity + Drivers -->
+          <div class="detail-right">
+            <!-- Engagement Metrics -->
+            <div class="detail-info-section">
+              <h4 class="detail-section-title">Digital Engagement</h4>
+              <div class="engagement-grid">
+                <div class="eng-stat"><div class="eng-value" id="d-website-visits">--</div><div class="eng-label">Website Visits</div></div>
+                <div class="eng-stat"><div class="eng-value" id="d-page-views">--</div><div class="eng-label">Page Views</div></div>
+                <div class="eng-stat"><div class="eng-value" id="d-pricing-visits">--</div><div class="eng-label">Pricing Page Visits</div></div>
+                <div class="eng-stat"><div class="eng-value" id="d-email-opens">--</div><div class="eng-label">Email Opens</div></div>
+                <div class="eng-stat"><div class="eng-value" id="d-num-calls">--</div><div class="eng-label">Sales Calls</div></div>
+                <div class="eng-stat"><div class="eng-value" id="d-num-meetings">--</div><div class="eng-label">Meetings</div></div>
+              </div>
+            </div>
+
+            <!-- Key Drivers -->
+            <div class="detail-info-section">
+              <h4 class="detail-section-title">Model Explanation — Key Drivers</h4>
+              <div class="drivers-list" id="detail-drivers-list">
+                <div style="color:var(--text-muted);font-size:13px;">Score this lead to see model drivers.</div>
+              </div>
+            </div>
+
+            <!-- Activity History -->
+            <div class="detail-info-section">
+              <h4 class="detail-section-title">Activity History</h4>
+              <div class="activity-log" id="detail-activity-log"></div>
+              <!-- Add Note -->
+              <div class="add-note-row">
+                <input type="text" class="form-input" id="detail-note-input" placeholder="Add a note or activity...">
+                <button class="btn-secondary" onclick="addLeadNote()">Add Note</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============================================================
+       CREATE / EDIT LEAD MODAL
+  ============================================================ -->
+  <div id="lead-form-modal" class="modal-overlay" style="display:none;" onclick="closeLeadFormModal(event)">
+    <div class="modal-box modal-md" onclick="event.stopPropagation()">
+      <div class="modal-header">
+        <div>
+          <h3 class="modal-title" id="lead-form-title">Create New Lead</h3>
+          <p style="font-size:12px;color:var(--text-muted);">Fill in the lead details below</p>
+        </div>
+        <button class="modal-close" onclick="closeLeadFormModal()">&times;</button>
+      </div>
+
+      <div class="modal-body">
+        <form id="lead-create-form" onsubmit="submitLeadForm(event)">
+
+          <div class="form-group-section">
+            <h3 class="section-title">Lead Profile</h3>
+            <div class="form-grid">
+              <div class="form-field">
+                <label class="form-label" for="cf-name">Lead Name <span class="required-star">*</span></label>
+                <input type="text" id="cf-name" class="form-input" placeholder="Jane Smith" required>
+              </div>
+              <div class="form-field">
+                <label class="form-label" for="cf-company">Company <span class="required-star">*</span></label>
+                <input type="text" id="cf-company" class="form-input" placeholder="Acme Corp" required>
+              </div>
+              <div class="form-field">
+                <label class="form-label" for="cf-job-title">Job Title</label>
+                <input type="text" id="cf-job-title" class="form-input" placeholder="VP of Sales">
+              </div>
+              <div class="form-field">
+                <label class="form-label" for="cf-email">Email</label>
+                <input type="email" id="cf-email" class="form-input" placeholder="jane@company.com">
+              </div>
+              <div class="form-field">
+                <label class="form-label" for="cf-industry">Industry <span class="required-star">*</span></label>
+                <select id="cf-industry" class="form-select" required>
+                  <option value="">Select industry...</option>
+                  <option value="SaaS">SaaS</option>
+                  <option value="Retail">Retail</option>
+                  <option value="Finance">Finance</option>
+                  <option value="Healthcare">Healthcare</option>
+                  <option value="Real Estate">Real Estate</option>
+                  <option value="E-commerce">E-commerce</option>
+                  <option value="Media">Media</option>
+                  <option value="Logistics">Logistics</option>
+                  <option value="Other">Other</option>
+                </select>
+              </div>
+              <div class="form-field">
+                <label class="form-label" for="cf-company-size">Company Size</label>
+                <input type="number" id="cf-company-size" class="form-input" placeholder="250" min="1">
+              </div>
+            </div>
+          </div>
+
+          <div class="form-group-section">
+            <h3 class="section-title">Acquisition &amp; Intent</h3>
+            <div class="form-grid">
+              <div class="form-field">
+                <label class="form-label" for="cf-lead-source">Lead Source</label>
+                <select id="cf-lead-source" class="form-select">
+                  <option value="Website">Website</option>
+                  <option value="Email Campaign">Email Campaign</option>
+                  <option value="Organic Search">Organic Search</option>
+                  <option value="Paid Ads">Paid Ads</option>
+                  <option value="Referral">Referral</option>
+                  <option value="Social Media">Social Media</option>
+                  <option value="Direct">Direct</option>
+                </select>
+              </div>
+              <div class="form-field">
+                <label class="form-label" for="cf-product-interest">Product Interest</label>
+                <select id="cf-product-interest" class="form-select">
+                  <option value="Enterprise Plan">Enterprise Plan</option>
+                  <option value="Growth Plan">Growth Plan</option>
+                  <option value="Starter Plan">Starter Plan</option>
+                  <option value="Add-on Module">Add-on Module</option>
+                </select>
+              </div>
+              <div class="form-field">
+                <label class="form-label" for="cf-budget-range">Budget Range</label>
+                <select id="cf-budget-range" class="form-select">
+                  <option value="Unknown">Unknown</option>
+                  <option value="<10k">&lt;10k</option>
+                  <option value="10k-50k">10k-50k</option>
+                  <option value="50k-1L">50k-1L</option>
+                  <option value="1L-5L">1L-5L</option>
+                  <option value="5L+">5L+</option>
+                </select>
+              </div>
+              <div class="form-field">
+                <label class="form-label">Demo Requested?</label>
+                <div class="radio-group">
+                  <label class="radio-label"><input type="radio" name="cf_demo_requested" value="Yes"> Yes</label>
+                  <label class="radio-label"><input type="radio" name="cf_demo_requested" value="No" checked> No</label>
+                  <label class="radio-label"><input type="radio" name="cf_demo_requested" value="Unknown"> Unknown</label>
+                </div>
+              </div>
+              <div class="form-field">
+                <label class="form-label" for="cf-website-visits">Website Visits</label>
+                <input type="number" id="cf-website-visits" class="form-input" value="0" min="0">
+              </div>
+              <div class="form-field">
+                <label class="form-label" for="cf-pricing-visits">Pricing Page Visits</label>
+                <input type="number" id="cf-pricing-visits" class="form-input" value="0" min="0">
+              </div>
+              <div class="form-field">
+                <label class="form-label" for="cf-email-opens">Email Opens</label>
+                <input type="number" id="cf-email-opens" class="form-input" value="0" min="0">
+              </div>
+              <div class="form-field">
+                <label class="form-label" for="cf-num-meetings">Meetings Completed</label>
+                <input type="number" id="cf-num-meetings" class="form-input" value="0" min="0">
+              </div>
+            </div>
+          </div>
+
+          <div id="lead-form-error" class="auth-error" style="display:none;margin-bottom:12px;"></div>
+
+          <div style="display:flex;gap:12px;justify-content:flex-end;">
+            <button type="button" class="btn-secondary" onclick="closeLeadFormModal()">Cancel</button>
+            <button type="submit" class="btn-primary" id="btn-create-lead-submit" style="width:auto;padding:10px 24px;">
+              <span id="lead-form-btn-text">Create &amp; Score Lead</span>
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <script src="/static/app.js"></script>
+</body>
+</html>
