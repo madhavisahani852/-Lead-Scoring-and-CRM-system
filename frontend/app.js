@@ -6,7 +6,7 @@
  */
 
 // ── Application State ──────────────────────────────────────────────────────────
-const API = '';
+const API = 'https://lead-scoring-and-crm-system.onrender.com';
 let currentView = 'dashboard';
 let currentActiveLeadId = null;
 let allLeadsCache = [];
@@ -555,9 +555,9 @@ async function loadPipeline() {
         </div>
         <div class="pipeline-cards">
           ${byStage[stage].length === 0
-            ? '<div style="color: var(--text-muted); font-size: 11px; text-align: center; padding: 16px 0;">No leads</div>'
-            : byStage[stage].slice(0, 25).map(l => renderPipelineCard(l)).join('')
-          }
+        ? '<div style="color: var(--text-muted); font-size: 11px; text-align: center; padding: 16px 0;">No leads</div>'
+        : byStage[stage].slice(0, 25).map(l => renderPipelineCard(l)).join('')
+      }
         </div>
       </div>
     `).join('');
