@@ -43,6 +43,10 @@
           <span class="nav-icon">🏗️</span>
           <span class="nav-text">Pipeline</span>
         </a>
+        <a href="#/csv-uploads" class="nav-item" id="nav-csv-uploads" onclick="navigateTo('csv-uploads'); return false;">
+          <span class="nav-icon">⬆️</span>
+          <span class="nav-text">CSV Uploads</span>
+        </a>
         <a href="#/analytics" class="nav-item" id="nav-analytics" onclick="navigateTo('analytics'); return false;">
           <span class="nav-icon">📈</span>
           <span class="nav-text">Analytics</span>
@@ -52,6 +56,21 @@
       <div class="sidebar-footer">
         <div class="sidebar-footer-text">XGBoost ML Engine</div>
         <div class="sidebar-footer-sub">Production Model Active</div>
+      </div>
+
+      <!-- User / Auth Session in Sidebar -->
+      <div class="sidebar-user-block" id="sidebar-user-section">
+        <div class="sidebar-user-info" id="sidebar-user-info" style="display: none;">
+          <div class="sidebar-user-avatar" id="sidebar-user-avatar">U</div>
+          <div class="sidebar-user-details">
+            <div class="sidebar-user-name" id="sidebar-user-name">User Name</div>
+            <div class="sidebar-user-role" id="sidebar-user-role">Member · ws-main</div>
+          </div>
+        </div>
+        <div class="sidebar-auth-btns" id="sidebar-auth-btns">
+          <button class="btn-sidebar-auth" id="btn-sidebar-login" onclick="openAuthModal('login')">Sign In</button>
+          <button class="btn-sidebar-auth" id="btn-sidebar-logout" onclick="handleLogout()" style="display: none;">Sign Out</button>
+        </div>
       </div>
     </aside>
 
@@ -74,6 +93,38 @@
 
       <!-- View Container -->
       <div class="content-viewport">
+
+        <!-- ============================================================
+             AUTH GATE VIEW (Presented when user is unauthenticated)
+             ============================================================ -->
+        <section id="auth-gate-view" class="page-view">
+          <div style="max-width: 460px; margin: 40px auto; background: var(--bg-card); padding: 32px; border-radius: var(--radius-md); border: 1px solid var(--border-color); box-shadow: var(--shadow-sm);">
+            <div style="text-align: center; margin-bottom: 24px;">
+              <div class="brand-icon" style="margin: 0 auto 12px; width: 44px; height: 44px; font-size: 16px;">CRM</div>
+              <h2 style="font-size: 20px; font-weight: 800; color: var(--dark-espresso); margin-bottom: 4px;">Welcome to Lead CRM</h2>
+              <p style="font-size: 13px; color: var(--text-muted);">Please sign in or create an account to access the workspace.</p>
+            </div>
+
+            <div class="modal-tab-bar" style="margin-bottom: 20px;">
+              <button class="modal-tab active" id="gate-tab-login" onclick="switchGateTab('login')">Sign In</button>
+            </div>
+
+            <!-- Gate Login Form -->
+            <form id="gate-login-form" onsubmit="handleGateLogin(event)">
+              <div class="form-group" style="margin-bottom: 14px;">
+                <label for="gate-login-email">Email Address</label>
+                <input type="email" id="gate-login-email" class="form-control" placeholder="demo@leadcrm.com" required>
+              </div>
+              <div class="form-group" style="margin-bottom: 16px;">
+                <label for="gate-login-password">Password</label>
+                <input type="password" id="gate-login-password" class="form-control" placeholder="••••••••" required>
+              </div>
+              <div id="gate-login-error" style="display: none; margin-bottom: 12px; color: var(--status-hot); font-size: 13px;"></div>
+              <button type="submit" class="btn btn-primary" style="width: 100%; margin-bottom: 12px;">Sign In to Workspace</button>
+              <button type="button" class="btn btn-secondary" style="width: 100%; font-size: 12px;" onclick="fillDemoAndLogin()">⚡ Quick Demo Login (Admin)</button>
+            </form>
+          </div>
+        </section>
 
         <!-- ============================================================
              VIEW 1: DASHBOARD
@@ -105,6 +156,20 @@
               <div class="stat-label">Conversion Rate</div>
               <div class="stat-value" id="dash-conv-rate">—</div>
               <span class="stat-badge" style="background: var(--bg-beige); color: var(--text-muted);">Won / Resolved</span>
+            </div>
+          </div>
+
+          <!-- Smart Action Alerts -->
+          <div class="alerts-section" id="dash-alerts-section">
+            <div class="alerts-header">
+              <h3 class="section-title" style="margin: 0; display: flex; align-items: center; gap: 8px;">
+                <span>⚡ Smart Action Alerts</span>
+                <span class="badge badge-hot" id="dash-alerts-count" style="font-size: 11px;">0 Active</span>
+              </h3>
+              <button class="btn btn-secondary btn-sm" onclick="loadAlerts()">↻ Refresh</button>
+            </div>
+            <div class="alerts-grid" id="dash-alerts-grid">
+              <div class="table-empty">Loading smart alerts...</div>
             </div>
           </div>
 
@@ -218,8 +283,14 @@
                   <option value="Education">Education</option>
                 </select>
 
-                <select id="leads-sort-by" class="form-control" style="width: 135px;" onchange="handleLeadsFilterChange()">
+                <select id="leads-assigned-filter" class="form-control" style="width: 155px;" onchange="handleLeadsFilterChange()">
+                  <option value="All">All Assignees</option>
+                </select>
+
+                <select id="leads-sort-by" class="form-control" style="width: 165px;" onchange="handleLeadsFilterChange()">
                   <option value="score">Sort: Score ↓</option>
+                  <option value="conversion_probability">Sort: Conv. Prob ↓</option>
+                  <option value="updated_at">Sort: Last Activity</option>
                   <option value="created_at">Sort: Newest</option>
                   <option value="name">Sort: Name</option>
                   <option value="company">Sort: Company</option>
@@ -228,6 +299,7 @@
 
               <div style="display: flex; gap: 10px; align-items: center;">
                 <span id="leads-count-label" class="count-label"></span>
+                <button class="btn btn-secondary btn-sm" id="btn-export-csv" onclick="handleExportCSV()" title="Export filtered leads to CSV">⬇ Export CSV</button>
                 <button class="btn btn-primary btn-sm" onclick="navigateTo('score')">+ Score New Lead</button>
               </div>
             </div>
@@ -553,6 +625,96 @@
             <div id="ana-score-dist" class="score-dist-chart"></div>
           </div>
 
+          <!-- Model Governance & Retraining Card -->
+          <div class="model-governance-box" id="model-governance-card">
+            <div class="section-header" style="margin-bottom: 0;">
+              <div>
+                <h3 class="section-title">🤖 Production ML Model Governance</h3>
+                <p style="font-size: 13px; color: var(--text-muted); margin-top: 2px;">
+                  Real XGBoost model version registry, baseline metrics, and candidate retraining workflow.
+                </p>
+              </div>
+              <button class="btn btn-primary btn-sm" id="btn-retrain-model" onclick="handleRetrainEvaluation()">
+                ⚡ Retrain &amp; Evaluate Candidate
+              </button>
+            </div>
+
+            <div class="model-info-grid">
+              <div class="model-info-item">
+                <div class="model-info-label">Active Model</div>
+                <div class="model-info-value" id="model-val-type">XGBoost</div>
+              </div>
+              <div class="model-info-item">
+                <div class="model-info-label">Active Version</div>
+                <div class="model-info-value" id="model-val-version">v1.0.0</div>
+              </div>
+              <div class="model-info-item">
+                <div class="model-info-label">Production ROC-AUC</div>
+                <div class="model-info-value" id="model-val-roc">0.7932</div>
+              </div>
+              <div class="model-info-item">
+                <div class="model-info-label">Governance Status</div>
+                <div class="model-info-value" style="color: var(--stage-won-text);">ACTIVE</div>
+              </div>
+            </div>
+
+            <div id="model-retrain-status-box" style="display: none;"></div>
+          </div>
+
+        </section>
+
+        <!-- ============================================================
+             VIEW 6: CSV UPLOADS
+             ============================================================ -->
+        <section id="csv-uploads-view" class="page-view">
+          <div class="section-card">
+            <h3 class="section-title">Import Leads via CSV</h3>
+            <p style="font-size: 14px; color: var(--text-muted); margin-bottom: 20px;">
+              Import multiple leads from a CSV file and automatically score them using the production XGBoost model.
+            </p>
+            
+            <div id="csv-import-drop-zone" class="modal-drop-zone" style="margin-bottom: 20px;">
+              <div style="font-size: 24px; margin-bottom: 8px;">📄</div>
+              <p>Drag and drop your CSV file here, or click to browse</p>
+              <input type="file" id="csv-upload-input" accept=".csv" style="display: none;" onchange="handleCsvFileSelect(event)">
+              <button class="btn btn-secondary btn-sm" style="margin-top: 12px;" onclick="document.getElementById('csv-upload-input').click()">Select File</button>
+              <div id="csv-selected-file-info" style="margin-top: 12px; font-weight: 500; color: var(--brand-primary); font-size: 14px; display: none;"></div>
+            </div>
+            
+            <div style="display: flex; gap: 10px; justify-content: flex-end;">
+              <button class="btn btn-primary" id="btn-submit-csv-upload" onclick="submitCsvUpload()">Upload &amp; Import</button>
+            </div>
+            <div id="csv-upload-result" style="margin-top: 16px; padding: 12px; border-radius: var(--radius-sm); font-size: 14px; display: none;"></div>
+            
+            <div style="margin-top: 24px;">
+              <h4 style="margin-bottom: 8px; font-size: 14px;">Supported Columns:</h4>
+              <p style="font-size: 12px; color: var(--text-muted); line-height: 1.5;">
+                <strong>Required:</strong> name, email<br>
+                <strong>Optional:</strong> company, industry, company_size, lead_source, product_interest, budget_range, website_visits, pricing_page_visits, demo_requested, email_opens, form_completions, num_calls, num_meetings, and more.
+              </p>
+            </div>
+          </div>
+
+          <div class="section-card" style="margin-top: 24px;">
+            <h3 class="section-title">Upload History</h3>
+            <div class="table-container">
+              <table class="data-table">
+                <thead>
+                  <tr>
+                    <th>File Name</th>
+                    <th>Date</th>
+                    <th>Total Rows</th>
+                    <th>Imported</th>
+                    <th>Duplicates</th>
+                    <th>Failed</th>
+                  </tr>
+                </thead>
+                <tbody id="csv-history-tbody">
+                  <tr><td colspan="6" class="table-empty">Loading history...</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
         </section>
 
       </div>
@@ -595,7 +757,12 @@
             <div><strong>Location:</strong> <span id="detail-modal-location"></span></div>
             <div><strong>Budget Range:</strong> <span id="detail-modal-budget"></span></div>
             <div><strong>Product Interest:</strong> <span id="detail-modal-product"></span></div>
-            <div><strong>Assigned To:</strong> <span id="detail-modal-assigned"></span></div>
+            <div>
+              <strong>Assigned To:</strong>
+              <select id="detail-modal-assigned-select" class="form-control" style="width: 170px; display: inline-block; margin-left: 6px; padding: 3px 8px; font-size: 13px;" onchange="handleModalAssignChange()">
+                <option value="">Unassigned</option>
+              </select>
+            </div>
           </div>
 
           <div style="display: flex; align-items: center; gap: 16px; margin-bottom: 16px; padding: 12px; background: var(--bg-beige); border-radius: var(--radius-sm); flex-wrap: wrap;">
@@ -708,7 +875,9 @@
           </div>
           <div class="form-group">
             <label for="edit-input-assigned">Assigned To</label>
-            <input type="text" id="edit-input-assigned" class="form-control" placeholder="Assignee name or email">
+            <select id="edit-input-assigned" class="form-control">
+              <option value="">Unassigned</option>
+            </select>
           </div>
         </div>
 
@@ -756,6 +925,37 @@
         <button class="btn btn-secondary btn-sm" onclick="closeImportModal()">Close</button>
         <button class="btn btn-primary btn-sm" id="btn-run-import" onclick="runImport()" disabled>Upload &amp; Import</button>
       </div>
+    </div>
+  </div>
+
+
+  <!-- ============================================================
+       MODAL 4: AUTHENTICATION (Login / Sign Up)
+       ============================================================ -->
+  <div id="auth-modal" class="modal-overlay" onclick="handleOverlayClick(event, 'auth-modal')">
+    <div class="modal" style="max-width: 440px;">
+      <div class="modal-header">
+        <h3 class="modal-title" id="auth-modal-title">Sign In to Lead CRM</h3>
+        <button class="close-btn" onclick="closeAuthModal()" title="Close">&times;</button>
+      </div>
+
+      <div class="modal-tab-bar" style="margin-bottom: 20px;">
+        <button class="modal-tab active" id="auth-tab-login" onclick="switchAuthTab('login')">Sign In</button>
+      </div>
+
+      <!-- Login Form -->
+      <form id="auth-login-form" onsubmit="handleAuthLogin(event)">
+        <div class="form-group" style="margin-bottom: 14px;">
+          <label for="login-email">Email Address</label>
+          <input type="email" id="login-email" class="form-control" placeholder="user@company.com" required>
+        </div>
+        <div class="form-group" style="margin-bottom: 18px;">
+          <label for="login-password">Password</label>
+          <input type="password" id="login-password" class="form-control" placeholder="••••••••" required>
+        </div>
+        <div id="auth-login-error" style="display: none; margin-bottom: 12px; color: var(--status-hot); font-size: 13px;"></div>
+        <button type="submit" class="btn btn-primary" style="width: 100%;">Sign In</button>
+      </form>
     </div>
   </div>
 

@@ -6,15 +6,35 @@
  */
 
 // ── Application State ──────────────────────────────────────────────────────────
-const API = 'https://lead-scoring-and-crm-system.onrender.com';
+function getApiBase() {
+  if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
+    return '';
+  }
+  if (window.location.origin && window.location.origin.includes('onrender.com')) {
+    return '';
+  }
+  return 'https://lead-scoring-and-crm-system.onrender.com';
+}
+const API = getApiBase();
 let currentView = 'dashboard';
 let currentActiveLeadId = null;
 let allLeadsCache = [];
+let workspaceMembersCache = [];
+let currentUser = null;
 let currentPage = 1;
 const PAGE_LIMIT = 50;
 let totalLeadsCount = 0;
 let csvFileSelected = null;
 let lastScoredResult = null;
+
+function authHeaders(headers = {}) {
+  const token = localStorage.getItem('crm_token');
+  const h = { ...headers };
+  if (token) {
+    h['Authorization'] = `Bearer ${token}`;
+  }
+  return h;
+}
 
 // ── Navigation Configuration ──────────────────────────────────────────────────
 const VIEWS = {
@@ -37,6 +57,11 @@ const VIEWS = {
     title: 'Pipeline',
     subtitle: 'Visual kanban board for your lead pipeline',
     nav: 'nav-pipeline',
+  },
+  'csv-uploads': {
+    title: 'CSV Uploads',
+    subtitle: 'Import leads and view upload history',
+    nav: 'nav-csv-uploads',
   },
   analytics: {
     title: 'Analytics',
@@ -61,7 +86,36 @@ function navigateTo(view) {
   }
 }
 
+function showAuthGate() {
+  document.querySelectorAll('.page-view').forEach(el => el.classList.remove('active'));
+  const gate = document.getElementById('auth-gate-view');
+  if (gate) {
+    gate.classList.add('active');
+  }
+  const titleEl = document.getElementById('current-view-title');
+  const subEl = document.getElementById('current-view-subtitle');
+  if (titleEl) titleEl.textContent = 'Sign In';
+  if (subEl) subEl.textContent = 'Please authenticate to access your CRM workspace';
+  const topAction = document.getElementById('top-bar-action');
+  if (topAction) topAction.style.display = 'none';
+}
+
+function hideAuthGate() {
+  const gate = document.getElementById('auth-gate-view');
+  if (gate) {
+    gate.classList.remove('active');
+  }
+  const topAction = document.getElementById('top-bar-action');
+  if (topAction) topAction.style.display = 'flex';
+}
+
 function handleRouteChange() {
+  if (!currentUser && !localStorage.getItem('crm_token')) {
+    showAuthGate();
+    return;
+  }
+  hideAuthGate();
+
   const view = getRouteFromHash();
   currentView = view;
 
@@ -108,6 +162,9 @@ function handleRouteChange() {
     case 'score':
       // Score form does not require initial fetch
       break;
+    case 'csv-uploads':
+      loadCsvHistory();
+      break;
   }
 }
 
@@ -115,13 +172,16 @@ window.addEventListener('hashchange', handleRouteChange);
 
 // ── Initialization ────────────────────────────────────────────────────────────
 window.addEventListener('DOMContentLoaded', () => {
+  checkCurrentUser();
+  loadWorkspaceMembers();
+
   if (!window.location.hash) {
     window.location.hash = '#/dashboard';
   }
   handleRouteChange();
 
   // CSV Drag and Drop
-  const dropZone = document.getElementById('import-drop-zone');
+  const dropZone = document.getElementById('csv-import-drop-zone');
   if (dropZone) {
     dropZone.addEventListener('dragover', e => {
       e.preventDefault();
@@ -140,8 +200,9 @@ window.addEventListener('DOMContentLoaded', () => {
 
 // ── DASHBOARD VIEW ─────────────────────────────────────────────────────────────
 async function loadDashboard() {
+  loadAlerts();
   try {
-    const res = await fetch(`${API}/api/dashboard`);
+    const res = await fetch(`${API}/api/dashboard`, { headers: authHeaders() });
     const data = await res.json();
     if (!data.success) throw new Error('Dashboard load failed');
     const d = data.dashboard;
@@ -256,6 +317,7 @@ async function loadLeads() {
   const category = document.getElementById('leads-category-filter')?.value || 'All';
   const source = document.getElementById('leads-source-filter')?.value || 'All';
   const industry = document.getElementById('leads-industry-filter')?.value || 'All';
+  const assigned = document.getElementById('leads-assigned-filter')?.value || 'All';
   const sortBy = document.getElementById('leads-sort-by')?.value || 'score';
   const sortDir = 'desc';
 
@@ -269,6 +331,7 @@ async function loadLeads() {
   if (category !== 'All') params.set('category', category);
   if (source !== 'All') params.set('lead_source', source);
   if (industry !== 'All') params.set('industry', industry);
+  if (assigned !== 'All') params.set('assigned_to', assigned);
 
   const tbody = document.getElementById('leads-table-tbody');
   tbody.innerHTML = '<tr><td colspan="9" class="table-empty">Loading leads...</td></tr>';
@@ -568,23 +631,35 @@ async function loadPipeline() {
 }
 
 function renderPipelineCard(l) {
+  const prob = l.conversion_probability != null ? `${Math.round(l.conversion_probability * 100)}%` : (l.score != null ? `${l.score}%` : '—');
   return `
     <div class="pipeline-card">
       <div class="pipeline-card-name" style="cursor:pointer;" onclick="openDetailsModal('${esc(l.id)}')">${esc(l.name)}</div>
       <div class="pipeline-card-company">${esc(l.company || '—')}</div>
       <div class="pipeline-card-footer">
-        <span class="score-pill ${catClass(l.category)}">${l.score ?? '—'}</span>
+        <span class="score-pill ${catClass(l.category)}">${l.score ?? '—'} <small style="font-size:10px;opacity:0.8;">(${prob})</small></span>
         <span class="badge ${badgeClass(l.category)}">${l.category || ''}</span>
+      </div>
+      <div style="margin-top: 8px; border-top: 1px solid var(--border-color); padding-top: 6px;">
+        <select class="form-control" style="font-size: 11px; padding: 2px 4px; height: 26px; width: 100%; cursor: pointer;" onchange="handlePipelineCardStageChange('${esc(l.id)}', this.value)" onclick="event.stopPropagation();">
+          ${pipelineOptions(l.pipeline_stage || l.status || 'New')}
+        </select>
       </div>
     </div>
   `;
 }
 
+async function handlePipelineCardStageChange(leadId, newStage) {
+  await quickPipelineChange(leadId, newStage);
+  loadPipeline();
+}
+
 
 // ── ANALYTICS VIEW ─────────────────────────────────────────────────────────────
 async function loadAnalytics() {
+  loadModelInfo();
   try {
-    const res = await fetch(`${API}/api/analytics`);
+    const res = await fetch(`${API}/api/analytics`, { headers: authHeaders() });
     const data = await res.json();
     if (!data.success) throw new Error('Analytics load failed');
 
@@ -672,7 +747,8 @@ async function openDetailsModal(leadId) {
     document.getElementById('detail-modal-location').textContent = l.location || '—';
     document.getElementById('detail-modal-budget').textContent = l.budget_range || '—';
     document.getElementById('detail-modal-product').textContent = l.product_interest || '—';
-    document.getElementById('detail-modal-assigned').textContent = l.assigned_to || 'Unassigned';
+    const assignSelect = document.getElementById('detail-modal-assigned-select');
+    if (assignSelect) assignSelect.value = l.assigned_to || '';
     document.getElementById('detail-modal-score').textContent = l.score ?? '—';
     const probPct = l.conversion_probability != null ? `${Math.round(l.conversion_probability * 100)}%` : '—';
     document.getElementById('detail-modal-prob').textContent = probPct;
@@ -1080,4 +1156,621 @@ function relativeTime(ts) {
   const days = Math.floor(hours / 24);
   if (days < 30) return `${days}d ago`;
   return d.toLocaleDateString();
+}
+
+
+// ── AUTHENTICATION & SESSION MANAGEMENT ──────────────────────────────────────
+async function checkCurrentUser() {
+  const token = localStorage.getItem('crm_token');
+  if (!token) {
+    currentUser = null;
+    renderUserSession(null);
+    showAuthGate();
+    return;
+  }
+  try {
+    const res = await fetch(`${API}/api/auth/me`, {
+      headers: authHeaders()
+    });
+    if (res.ok) {
+      const data = await res.json();
+      if (data.authenticated && data.user) {
+        currentUser = data.user;
+        renderUserSession(currentUser);
+        hideAuthGate();
+        handleRouteChange();
+        return;
+      }
+    }
+  } catch (e) {}
+  localStorage.removeItem('crm_token');
+  currentUser = null;
+  renderUserSession(null);
+  showAuthGate();
+}
+
+function renderUserSession(user) {
+  const infoEl = document.getElementById('sidebar-user-info');
+  const loginBtn = document.getElementById('btn-sidebar-login');
+  const logoutBtn = document.getElementById('btn-sidebar-logout');
+  if (!infoEl || !loginBtn || !logoutBtn) return;
+
+  if (user) {
+    infoEl.style.display = 'flex';
+    loginBtn.style.display = 'none';
+    logoutBtn.style.display = 'block';
+    const avatarEl = document.getElementById('sidebar-user-avatar');
+    const nameEl = document.getElementById('sidebar-user-name');
+    const roleEl = document.getElementById('sidebar-user-role');
+    if (avatarEl) avatarEl.textContent = initials(user.name || user.email);
+    if (nameEl) nameEl.textContent = user.name || user.email;
+    if (roleEl) roleEl.textContent = `${user.role || 'Member'} · ${user.workspace_id || 'ws-main'}`;
+  } else {
+    infoEl.style.display = 'none';
+    loginBtn.style.display = 'block';
+    logoutBtn.style.display = 'none';
+  }
+}
+
+function openAuthModal(mode = 'login') {
+  openModal('auth-modal');
+  switchAuthTab(mode);
+}
+
+function closeAuthModal() {
+  closeModal('auth-modal');
+  const errL = document.getElementById('auth-login-error');
+  const errS = document.getElementById('auth-signup-error');
+  if (errL) { errL.style.display = 'none'; errL.textContent = ''; }
+  if (errS) { errS.style.display = 'none'; errS.textContent = ''; }
+}
+
+function switchAuthTab(mode) {
+  const loginTab = document.getElementById('auth-tab-login');
+  const signupTab = document.getElementById('auth-tab-signup');
+  const loginForm = document.getElementById('auth-login-form');
+  const signupForm = document.getElementById('auth-signup-form');
+  const title = document.getElementById('auth-modal-title');
+
+  if (mode === 'signup') {
+    if (signupTab) signupTab.classList.add('active');
+    if (loginTab) loginTab.classList.remove('active');
+    if (signupForm) signupForm.style.display = 'block';
+    if (loginForm) loginForm.style.display = 'none';
+    if (title) title.textContent = 'Create CRM Account';
+  } else {
+    if (loginTab) loginTab.classList.add('active');
+    if (signupTab) signupTab.classList.remove('active');
+    if (loginForm) loginForm.style.display = 'block';
+    if (signupForm) signupForm.style.display = 'none';
+    if (title) title.textContent = 'Sign In to Lead CRM';
+  }
+}
+
+function switchGateTab(mode) {
+  const loginTab = document.getElementById('gate-tab-login');
+  const signupTab = document.getElementById('gate-tab-signup');
+  const loginForm = document.getElementById('gate-login-form');
+  const signupForm = document.getElementById('gate-signup-form');
+
+  if (mode === 'signup') {
+    if (signupTab) signupTab.classList.add('active');
+    if (loginTab) loginTab.classList.remove('active');
+    if (signupForm) signupForm.style.display = 'block';
+    if (loginForm) loginForm.style.display = 'none';
+  } else {
+    if (loginTab) loginTab.classList.add('active');
+    if (signupTab) signupTab.classList.remove('active');
+    if (loginForm) loginForm.style.display = 'block';
+    if (signupForm) signupForm.style.display = 'none';
+  }
+}
+
+async function fillDemoAndLogin() {
+  const emailInput = document.getElementById('gate-login-email');
+  const pwdInput = document.getElementById('gate-login-password');
+  if (emailInput) emailInput.value = 'demo@leadcrm.com';
+  if (pwdInput) pwdInput.value = 'demo123';
+  await submitGateLogin('demo@leadcrm.com', 'demo123');
+}
+
+async function handleGateLogin(e) {
+  e.preventDefault();
+  const email = document.getElementById('gate-login-email').value.trim();
+  const password = document.getElementById('gate-login-password').value;
+  await submitGateLogin(email, password);
+}
+
+async function submitGateLogin(email, password) {
+  const errEl = document.getElementById('gate-login-error');
+  if (errEl) errEl.style.display = 'none';
+  try {
+    const res = await fetch(`${API}/api/auth/login`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email, password }),
+    });
+    const data = await res.json();
+    if (!res.ok || !data.success) {
+      throw new Error(data.detail || data.error || 'Invalid login credentials');
+    }
+    const token = data.token || data.access_token;
+    localStorage.setItem('crm_token', token);
+    currentUser = data.user;
+    renderUserSession(currentUser);
+    hideAuthGate();
+    showToast(`Welcome back, ${currentUser.name || currentUser.email}!`, 'success');
+    loadWorkspaceMembers();
+    navigateTo('dashboard');
+  } catch (err) {
+    if (errEl) {
+      errEl.textContent = err.message;
+      errEl.style.display = 'block';
+    }
+  }
+}
+
+async function handleGateSignup(e) {
+  e.preventDefault();
+  const name = document.getElementById('gate-signup-name').value.trim();
+  const email = document.getElementById('gate-signup-email').value.trim();
+  const password = document.getElementById('gate-signup-password').value;
+  const role = document.getElementById('gate-signup-role').value;
+  const errEl = document.getElementById('gate-signup-error');
+  if (errEl) errEl.style.display = 'none';
+
+  try {
+    const res = await fetch(`${API}/api/auth/signup`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ name, email, password, role }),
+    });
+    const data = await res.json();
+    if (!res.ok || !data.success) {
+      throw new Error(data.detail || data.error || 'Signup failed');
+    }
+    const token = data.token || data.access_token;
+    localStorage.setItem('crm_token', token);
+    currentUser = data.user;
+    renderUserSession(currentUser);
+    hideAuthGate();
+    showToast(`Account created! Welcome, ${currentUser.name}!`, 'success');
+    loadWorkspaceMembers();
+    navigateTo('dashboard');
+  } catch (err) {
+    if (errEl) {
+      errEl.textContent = err.message;
+      errEl.style.display = 'block';
+    }
+  }
+}
+
+async function handleAuthLogin(e) {
+  e.preventDefault();
+  const email = document.getElementById('login-email').value.trim();
+  const password = document.getElementById('login-password').value;
+  const errEl = document.getElementById('auth-login-error');
+  errEl.style.display = 'none';
+
+  try {
+    const res = await fetch(`${API}/api/auth/login`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email, password }),
+    });
+    const data = await res.json();
+    if (!res.ok || !data.success) {
+      throw new Error(data.detail || data.error || 'Invalid login credentials');
+    }
+    const token = data.token || data.access_token;
+    localStorage.setItem('crm_token', token);
+    currentUser = data.user;
+    renderUserSession(currentUser);
+    hideAuthGate();
+    closeAuthModal();
+    showToast(`Welcome back, ${currentUser.name || currentUser.email}!`, 'success');
+    loadWorkspaceMembers();
+    navigateTo('dashboard');
+  } catch (err) {
+    errEl.textContent = err.message;
+    errEl.style.display = 'block';
+  }
+}
+
+async function handleAuthSignup(e) {
+  e.preventDefault();
+  const name = document.getElementById('signup-name').value.trim();
+  const email = document.getElementById('signup-email').value.trim();
+  const password = document.getElementById('signup-password').value;
+  const role = document.getElementById('signup-role').value;
+  const errEl = document.getElementById('auth-signup-error');
+  errEl.style.display = 'none';
+
+  try {
+    const res = await fetch(`${API}/api/auth/signup`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ name, email, password, role }),
+    });
+    const data = await res.json();
+    if (!res.ok || !data.success) {
+      throw new Error(data.detail || data.error || 'Signup failed');
+    }
+    const token = data.token || data.access_token;
+    localStorage.setItem('crm_token', token);
+    currentUser = data.user;
+    renderUserSession(currentUser);
+    hideAuthGate();
+    closeAuthModal();
+    showToast(`Account created! Welcome, ${currentUser.name}!`, 'success');
+    loadWorkspaceMembers();
+    navigateTo('dashboard');
+  } catch (err) {
+    errEl.textContent = err.message;
+    errEl.style.display = 'block';
+  }
+}
+
+async function handleLogout() {
+  const token = localStorage.getItem('crm_token');
+  if (token) {
+    try {
+      await fetch(`${API}/api/auth/logout`, {
+        method: 'POST',
+        headers: authHeaders()
+      });
+    } catch (e) {}
+  }
+  localStorage.removeItem('crm_token');
+  currentUser = null;
+  renderUserSession(null);
+  showAuthGate();
+  showToast('Signed out successfully', 'info');
+}
+
+
+// ── WORKSPACE MEMBERS ─────────────────────────────────────────────────────────
+async function loadWorkspaceMembers() {
+  try {
+    const res = await fetch(`${API}/api/workspace/members`, {
+      headers: authHeaders()
+    });
+    const data = await res.json();
+    if (data.success && Array.isArray(data.members)) {
+      workspaceMembersCache = data.members;
+      populateMemberDropdowns(workspaceMembersCache);
+    }
+  } catch (e) {
+    console.warn('Could not load workspace members:', e);
+  }
+}
+
+function populateMemberDropdowns(members) {
+  const optionsHtml = '<option value="">Unassigned</option>' + members.map(m => `
+    <option value="${esc(m.name || m.email)}">${esc(m.name)} (${esc(m.role || 'Member')})</option>
+  `).join('');
+
+  const filterSelect = document.getElementById('leads-assigned-filter');
+  if (filterSelect) {
+    const prev = filterSelect.value;
+    filterSelect.innerHTML = '<option value="All">All Assignees</option>' + members.map(m => `
+      <option value="${esc(m.name || m.email)}">${esc(m.name)}</option>
+    `).join('');
+    if (prev) filterSelect.value = prev;
+  }
+
+  const editSelect = document.getElementById('edit-input-assigned');
+  if (editSelect) {
+    const prev = editSelect.value;
+    editSelect.innerHTML = optionsHtml;
+    if (prev) editSelect.value = prev;
+  }
+
+  const detailSelect = document.getElementById('detail-modal-assigned-select');
+  if (detailSelect) {
+    const prev = detailSelect.value;
+    detailSelect.innerHTML = optionsHtml;
+    if (prev) detailSelect.value = prev;
+  }
+}
+
+async function handleModalAssignChange() {
+  if (!currentActiveLeadId) return;
+  const select = document.getElementById('detail-modal-assigned-select');
+  const assignee = select.value || null;
+  try {
+    const res = await fetch(`${API}/api/leads/${currentActiveLeadId}`, {
+      method: 'PUT',
+      headers: authHeaders({ 'Content-Type': 'application/json' }),
+      body: JSON.stringify({ assigned_to: assignee }),
+    });
+    const data = await res.json();
+    if (!data.success) throw new Error('Failed to update assignment');
+    showToast(`Lead assigned to ${assignee || 'Unassigned'}`, 'success');
+    loadModalActivities(currentActiveLeadId);
+  } catch (e) {
+    showToast('Assignment update failed', 'error');
+  }
+}
+
+
+// ── SMART ALERTS WIDGET ───────────────────────────────────────────────────────
+async function loadAlerts() {
+  const grid = document.getElementById('dash-alerts-grid');
+  const countBadge = document.getElementById('dash-alerts-count');
+  if (!grid) return;
+
+  try {
+    const res = await fetch(`${API}/api/alerts`, { headers: authHeaders() });
+    const data = await res.json();
+    if (!data.success) throw new Error('Alerts fetch failed');
+
+    const alerts = data.alerts || [];
+    if (countBadge) countBadge.textContent = `${alerts.length} Active`;
+
+    if (alerts.length === 0) {
+      grid.innerHTML = '<div class="table-empty" style="padding: 16px;">✨ No urgent alerts right now. All high-priority leads are handled!</div>';
+      return;
+    }
+
+    grid.innerHTML = alerts.slice(0, 4).map(a => {
+      const sevClass = a.severity === 'high' ? 'alert-severity-high' : (a.severity === 'medium' ? 'alert-severity-medium' : 'alert-severity-info');
+      const icon = a.type === 'HIGH_VALUE_LEAD' ? '🔥' : (a.type === 'FOLLOW_UP_REQUIRED' ? '⏰' : '⚡');
+      return `
+        <div class="alert-card">
+          <div class="alert-card-header">
+            <div class="alert-card-title">
+              <span>${icon}</span>
+              <span>${esc(a.title)}</span>
+            </div>
+            <span class="alert-severity-badge ${sevClass}">${esc(a.severity)}</span>
+          </div>
+          <div class="alert-card-body">${esc(a.message)}</div>
+          <div class="alert-card-footer">
+            <span class="alert-time">${relativeTime(a.created_at)}</span>
+            ${a.lead_id ? `<button class="btn btn-secondary btn-sm" onclick="openDetailsModal('${esc(a.lead_id)}')">${esc(a.action_label || 'View Lead')} →</button>` : ''}
+          </div>
+        </div>
+      `;
+    }).join('');
+  } catch (e) {
+    grid.innerHTML = '<div class="table-empty" style="color: var(--text-muted);">Could not load alerts.</div>';
+  }
+}
+
+
+// ── CSV EXPORT ────────────────────────────────────────────────────────────────
+async function handleExportCSV() {
+  const catFilter = document.getElementById('leads-category-filter')?.value || 'All';
+  const srcFilter = document.getElementById('leads-source-filter')?.value || 'All';
+  const indFilter = document.getElementById('leads-industry-filter')?.value || 'All';
+  const assignFilter = document.getElementById('leads-assigned-filter')?.value || 'All';
+  const search = document.getElementById('leads-search-input')?.value || '';
+
+  const params = new URLSearchParams();
+  if (catFilter !== 'All') params.set('category', catFilter);
+  if (srcFilter !== 'All') params.set('lead_source', srcFilter);
+  if (indFilter !== 'All') params.set('industry', indFilter);
+  if (assignFilter !== 'All') params.set('assigned_to', assignFilter);
+  if (search) params.set('search', search);
+
+  const q = params.toString() ? `?${params.toString()}` : '';
+  const url = `${API}/api/export${q}`;
+  showToast('Preparing CSV download...', 'info');
+
+  try {
+    const res = await fetch(url, { headers: authHeaders() });
+    if (!res.ok) throw new Error('Export request failed');
+    const blob = await res.blob();
+    const blobUrl = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = blobUrl;
+    a.download = `leads_export_${catFilter.toLowerCase()}_${new Date().toISOString().slice(0, 10)}.csv`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    window.URL.revokeObjectURL(blobUrl);
+    showToast('CSV export downloaded successfully!', 'success');
+  } catch (err) {
+    showToast('Export failed: ' + err.message, 'error');
+  }
+}
+
+
+// ── MODEL GOVERNANCE & RETRAINING ─────────────────────────────────────────────
+async function loadModelInfo() {
+  try {
+    const res = await fetch(`${API}/api/model-info`, { headers: authHeaders() });
+    const data = await res.json();
+    if (data.success || data.model_type) {
+      const typeEl = document.getElementById('model-val-type');
+      const verEl = document.getElementById('model-val-version');
+      const rocEl = document.getElementById('model-val-roc');
+      if (typeEl) typeEl.textContent = data.model_type || 'XGBoost';
+      if (verEl) verEl.textContent = data.active_version || 'v1.0.0';
+      if (rocEl) rocEl.textContent = data.current_model_roc_auc != null ? data.current_model_roc_auc.toFixed(4) : '0.7932';
+    }
+  } catch (e) {
+    console.warn('Could not load model info:', e);
+  }
+}
+
+async function handleRetrainEvaluation() {
+  const btn = document.getElementById('btn-retrain-model');
+  const box = document.getElementById('model-retrain-status-box');
+  if (!btn || !box) return;
+
+  btn.disabled = true;
+  btn.textContent = '⏳ Evaluating Candidate...';
+  box.style.display = 'block';
+  box.className = 'model-retrain-result retrain-retained';
+  box.innerHTML = '<strong>Running candidate retraining pipeline...</strong><br>Validating resolved leads dataset, tuning XGBoost candidate model, and calculating ROC-AUC against production baseline (0.7932)...';
+
+  try {
+    const res = await fetch(`${API}/api/model/retrain`, {
+      method: 'POST',
+      headers: authHeaders({ 'Content-Type': 'application/json' }),
+      body: JSON.stringify({}),
+    });
+    const data = await res.json();
+
+    if (res.ok && data.status === 'success') {
+      const candRoc = data.candidate_roc_auc != null ? data.candidate_roc_auc.toFixed(4) : '—';
+      const prodRoc = data.current_roc_auc != null ? data.current_roc_auc.toFixed(4) : '0.7932';
+      const isPromoted = data.promoted;
+
+      if (isPromoted) {
+        box.className = 'model-retrain-result retrain-promoted';
+        box.innerHTML = `
+          <strong>🎉 Candidate Model Promoted to Production!</strong><br>
+          Candidate ROC-AUC: <strong>${candRoc}</strong> | Previous Production ROC-AUC: <strong>${prodRoc}</strong><br>
+          <span style="font-size: 12px;">Candidate exceeded production baseline and has been promoted to active version.</span>
+        `;
+        showToast('New candidate model promoted!', 'success');
+      } else {
+        box.className = 'model-retrain-result retrain-retained';
+        box.innerHTML = `
+          <strong>🛡️ Production Baseline Retained</strong><br>
+          Candidate ROC-AUC: <strong>${candRoc}</strong> | Production ROC-AUC Baseline: <strong>${prodRoc}</strong><br>
+          <span style="font-size: 12px;">${esc(data.reason || 'Candidate model did not exceed production baseline ROC-AUC. Active production model preserved.')}</span>
+        `;
+        showToast('Production model preserved (ROC-AUC baseline retained)', 'info');
+      }
+      loadModelInfo();
+    } else {
+      box.className = 'model-retrain-result retrain-retained';
+      box.innerHTML = `<strong>Notice:</strong> ${esc(data.detail || data.reason || 'Retraining could not be completed.')}`;
+    }
+  } catch (err) {
+    box.className = 'model-retrain-result retrain-retained';
+    box.innerHTML = `<strong>Error:</strong> ${esc(err.message)}`;
+    showToast('Retraining evaluation failed', 'error');
+  } finally {
+    btn.disabled = false;
+    btn.textContent = '⚡ Retrain & Evaluate Candidate';
+  }
+}
+
+
+// ── CSV UPLOADS VIEW ────────────────────────────────────────────────────────
+async function loadCsvHistory() {
+  const tbody = document.getElementById('csv-history-tbody');
+  if (!tbody) return;
+  tbody.innerHTML = '<tr><td colspan="6" class="table-empty">Loading history...</td></tr>';
+
+  try {
+    const res = await fetch(`${API}/api/imports/history`, { headers: authHeaders() });
+    const data = await res.json();
+    if (!data.success) throw new Error('Failed to load history');
+
+    const history = data.history || [];
+    if (!history.length) {
+      tbody.innerHTML = '<tr><td colspan="6" class="table-empty">No CSV imports yet.</td></tr>';
+      return;
+    }
+
+    tbody.innerHTML = history.map(h => `
+      <tr>
+        <td><strong>${esc(h.filename || 'import.csv')}</strong></td>
+        <td style="font-size: 12px; color: var(--text-muted);">${new Date(h.created_at).toLocaleString()}</td>
+        <td>${h.total_rows || 0}</td>
+        <td style="color: var(--status-warm); font-weight: 500;">${h.imported || 0}</td>
+        <td style="color: var(--text-muted);">${h.duplicates || 0}</td>
+        <td style="color: var(--status-hot);">${h.failed || 0}</td>
+      </tr>
+    `).join('');
+  } catch (err) {
+    console.error(err);
+    tbody.innerHTML = '<tr><td colspan="6" class="table-empty" style="color:var(--status-hot);">Failed to load upload history.</td></tr>';
+  }
+}
+
+function handleCsvFileSelect(event) {
+  const file = event.target.files[0];
+  if (file) setImportFile(file);
+}
+
+function setImportFile(file) {
+  if (!file.name.toLowerCase().endsWith('.csv')) {
+    showToast('Only .csv files are supported', 'error');
+    return;
+  }
+  csvFileSelected = file;
+  const infoEl = document.getElementById('csv-selected-file-info');
+  if (infoEl) {
+    infoEl.textContent = `Selected: ${file.name} (${(file.size / 1024).toFixed(1)} KB)`;
+    infoEl.style.display = 'block';
+  }
+  document.getElementById('csv-upload-result').style.display = 'none';
+}
+
+async function submitCsvUpload() {
+  if (!csvFileSelected) {
+    showToast('Please select a CSV file first', 'error');
+    return;
+  }
+
+  const btn = document.getElementById('btn-submit-csv-upload');
+  const resultDiv = document.getElementById('csv-upload-result');
+  btn.disabled = true;
+  btn.textContent = 'Uploading...';
+  resultDiv.style.display = 'none';
+
+  const formData = new FormData();
+  formData.append('file', csvFileSelected);
+  
+  if (currentUser && currentUser.workspace_id) {
+    formData.append('workspace_id', currentUser.workspace_id);
+  }
+
+  try {
+    const res = await fetch(`${API}/api/import`, {
+      method: 'POST',
+      headers: authHeaders(),
+      body: formData
+    });
+    
+    const contentType = res.headers.get("content-type");
+    let data;
+    if (contentType && contentType.indexOf("application/json") !== -1) {
+      data = await res.json();
+    } else {
+      const textErr = await res.text();
+      throw new Error(textErr || 'Upload failed with non-JSON response');
+    }
+
+    if (!data.success) throw new Error(data.detail || data.error || 'Import failed');
+
+    resultDiv.className = 'upload-success';
+    resultDiv.style.display = 'block';
+    resultDiv.style.backgroundColor = 'rgba(76, 175, 80, 0.1)';
+    resultDiv.style.border = '1px solid var(--status-warm)';
+    resultDiv.style.color = 'var(--status-warm)';
+    resultDiv.innerHTML = `
+      <strong>✅ Import Complete</strong><br>
+      Successfully imported and scored <strong>${data.imported}</strong> new leads using the XGBoost production model.<br>
+      <span style="font-size:12px;">Valid Rows: ${data.valid_rows} | Duplicates skipped: ${data.valid_rows - data.imported} | Errors: ${data.invalid_rows}</span>
+    `;
+
+    csvFileSelected = null;
+    document.getElementById('csv-upload-input').value = '';
+    document.getElementById('csv-selected-file-info').style.display = 'none';
+    
+    showToast('Leads successfully imported and scored', 'success');
+    
+    loadCsvHistory();
+    allLeadsCache = [];
+  } catch (err) {
+    console.error(err);
+    resultDiv.className = 'upload-error';
+    resultDiv.style.display = 'block';
+    resultDiv.style.backgroundColor = 'rgba(244, 67, 54, 0.1)';
+    resultDiv.style.border = '1px solid var(--status-hot)';
+    resultDiv.style.color = 'var(--status-hot)';
+    resultDiv.innerHTML = `<strong>❌ Import Failed</strong><br>${esc(err.message)}`;
+    showToast('CSV Import Failed', 'error');
+  } finally {
+    btn.disabled = false;
+    btn.textContent = 'Upload & Import';
+  }
 }

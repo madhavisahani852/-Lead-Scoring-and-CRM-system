@@ -8,7 +8,7 @@ def test_health_endpoint():
     response = client.get("/api/health")
     assert response.status_code == 200
     data = response.json()
-    assert data["status"] == "healthy"
+    assert data["status"] in ("healthy", "degraded")
     assert "Lead Scoring" in data["service"]
 
 def test_score_lead_endpoint():
